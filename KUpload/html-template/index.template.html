@@ -1,0 +1,391 @@
+<!-- saved from url=(0014)about:internet -->
+<html lang="en">
+
+<!--
+Smart developers always View Source.
+
+This application was built using Adobe Flex, an open source framework
+for building rich Internet applications that get delivered via the
+Flash Player or to desktops via Adobe AIR.
+
+Learn more about Flex at http://flex.org
+// -->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!--  BEGIN Browser History required section -->
+<link rel="stylesheet" type="text/css" href="history/history.css" />
+<!--  END Browser History required section -->
+
+<title>${title}</title>
+<script src="AC_OETags.js" language="javascript"></script>
+
+<!--  BEGIN Browser History required section -->
+<script src="history/history.js" language="javascript"></script>
+<!--  END Browser History required section -->
+
+<style>
+	body { margin: 0px; overflow:hidden }
+	#flashContainer{ position:relative; }
+		#flashContainer span{ color:#333; font-size:16px; }
+		object, embed{ position:absolute; top:0; left:0; z-index:999;}
+</style>
+<script language="JavaScript" type="text/javascript">
+<!--
+// -----------------------------------------------------------------------------
+// Globals
+// Major version of Flash required
+var requiredMajorVersion = ${version_major};
+// Minor version of Flash required
+var requiredMinorVersion = ${version_minor};
+// Minor version of Flash required
+var requiredRevision = ${version_revision};
+// -----------------------------------------------------------------------------
+// -->
+
+	var app;
+	var delegate = {};
+
+	//KUploader callbacks
+	delegate.readyHandler = function()
+	{
+		app = document.getElementById("uploader");
+	}
+
+	delegate.selectHandler = function()
+	{
+		alert("selectHandler()");
+		console.log(app.getTotalSize());
+	}
+
+	delegate.singleUploadCompleteHandler = function(args)
+	{
+		console.log("singleUploadCompleteHandler", args[0].title);
+	}
+
+	delegate.allUploadsCompleteHandler = function()
+	{
+		alert("allUploadsCompleteHandler");
+	}
+
+	delegate.entriesAddedHandler = function(entries)
+	{
+		alert(entries[0].entryId)
+	}
+
+	delegate.progressHandler = function(args)
+	{
+		console.log(args[2].title + ": " + args[0] + " / " + args[1]);
+	}
+
+	delegate.uiConfErrorHandler = function()
+	{
+		alert("ui conf loading error");
+	}
+
+	//KUplaoder API calls
+
+	function upload()
+	{
+		app.upload();
+	}
+
+	function setTags(tags, startIndex, endIndex)
+	{
+		app.setTags(tags, startIndex, endIndex);
+	}
+
+	function addTags(tags, startIndex, endIndex)
+	{
+		app.addTags(tags, startIndex, endIndex);
+	}
+	function setTitle(title, startIndex, endIndex)
+	{
+		app.setTitle(title, startIndex, endIndex);
+	}
+
+	function getFiles()
+	{
+		var files = app.getFiles();
+		console.log(files[0].title);
+	}
+
+	function addEntries()
+	{
+		app.addEntries();
+	}
+
+	function stopUploads()
+	{
+		app.stopUploads();
+	}
+
+	function setMaxUploads(value)
+	{
+		app.setMaxUploads(value);
+	}
+
+	function browse()
+	{
+		app.browse();
+	}
+
+	function setPartnerData(value)
+	{
+		app.setPartnerData(value);
+	}
+
+	//End of KUploder API calls
+	//--------------------------------------------------------------------
+
+	function setMediaType()
+	{
+		var mediaType = mediaTypeInput.value;
+		alert(mediaType);
+		app.setMediaType(mediaType);
+	}
+
+	function addTagsFromForm()
+	{
+		var tags = document.getElementById("tagsInput").value.split(",");
+		var startIndex = parseInt(tagsStartIndex.value);
+		var endIndex = parseInt(tagsEndIndex.value);
+		addTags(tags, startIndex, endIndex);
+	}
+
+	function setTagsFromForm()
+	{
+		var tags = document.getElementById("tagsInput").value.split(",");
+		var startIndex = parseInt(tagsStartIndex.value);
+		var endIndex = parseInt(tagsEndIndex.value);
+		setTags(tags, startIndex, endIndex);
+	}
+
+	function setTitleFromForm()
+	{
+		var startIndex = parseInt(titleStartIndex.value);
+		var endIndex = parseInt(titleEndIndex.value);
+		setTitle(titleInput.value, startIndex, endIndex);
+	}
+
+	function removeFilesFromForm()
+	{
+		var startIndex = parseInt(removeStartIndex.value);
+		var endIndex = parseInt(removeEndIndex.value);
+		app.removeFiles(startIndex, endIndex)
+		console.log(app.getTotalSize());
+	}
+
+	function setGroupId(value)
+	{
+		app.setGroupId(value);
+	}
+
+	function setPermissions(value)
+	{
+		app.setPermissions(value);
+	}
+
+	function setSiteUrl(value)
+	{
+		app.setSiteUrl(value);
+	}
+
+	function setScreenName(value)
+	{
+		app.setScreenName(value);
+	}
+
+
+
+	var tagsInput;
+	var tagsStartIndex;
+	var tagsEndIndex;
+
+	var titleInput;
+	var titleStartIndex;
+	var titleEndIndex;
+
+	var removeStartIndex;
+	var removeEndIndex;
+	var maxUploadsInput;
+
+	var partnerDataInput;
+
+	var groupId;
+	var permissions;
+	var screenName;
+	var siteUrl;
+
+	function onLoadHandler()
+	{
+		tagsInput = document.getElementById("tagsInput");
+		tagsStartIndex = document.getElementById("tagsStartIndex");
+		tagsEndIndex = document.getElementById("tagsEndIndex");
+
+		titleInput = document.getElementById("titleInput");
+		titleStartIndex = document.getElementById("titleStartIndex");
+		titleEndIndex = document.getElementById("titleEndIndex");
+
+		removeStartIndex = document.getElementById("removeStartIndex");;
+		removeEndIndex = document.getElementById("removeEndIndex");
+
+		maxUploadsInput = document.getElementById("maxUploadsInput");
+		partnerDataInput = document.getElementById("partnerDataInput");
+
+		groupId = document.getElementById("groupId");
+		permissions = document.getElementById("permissions");
+		screenName = document.getElementById("screenName");
+		siteUrl = document.getElementById("siteUrl");
+	}
+</script>
+</head>
+
+<body scroll="no" onload=onLoadHandler()>
+<div id="flashContainer">
+	<span>Upload</span>
+<script language="JavaScript" type="text/javascript">
+<!--
+// Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
+var hasProductInstall = DetectFlashVer(6, 0, 65);
+
+// Version check based upon the values defined in globals
+var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
+
+if ( hasProductInstall && !hasRequestedVersion ) {
+	// DO NOT MODIFY THE FOLLOWING FOUR LINES
+	// Location visited after installation is complete if installation is required
+	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
+	var MMredirectURL = window.location;
+		document.title = document.title.slice(0, 47) + " - Flash Player Installation";
+		var MMdoctitle = document.title;
+
+	AC_FL_RunContent(
+		"src", "playerProductInstall",
+		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"width", "${width}",
+		"height", "${height}",
+		"align", "middle",
+		"id", "${application}",
+		"quality", "high",
+		"bgcolor", "${bgcolor}",
+		"name", "${application}",
+		"allowScriptAccess","sameDomain",
+		"type", "application/x-shockwave-flash",
+		"pluginspage", "http://www.adobe.com/go/getflashplayer"
+	);
+} else if (hasRequestedVersion) {
+	// if we've detected an acceptable version
+	// embed the Flash Content SWF when all tests are passed
+	AC_FL_RunContent(
+		//http://www.kaltura.com/kupload/ui_conf_id/11500
+			"src", "${swf}",
+			"width", "200",
+			"height", "30",
+			"align", "middle",
+			"id", "uploader",
+			"quality", "high",
+			"wmode", "transparent",
+			"bgcolor", "${bgcolor}",
+			"flashvars",
+						"ks=YzEzZTQ1YjcwMzVhMzE0ZGU3OWI3NjAzOTgwZDlhMGZjNmYwN2JkZXwxOzE7MTI1NTk2MDgwNDsyOzEyNTU4NzQ0MDQuODE7MTs=" +
+						"&uid=2" +
+						"&partnerId=1" +
+						"&subPId=100" +
+						"&host=http://kaldev.kaltura.com" +
+						"&uploadHost=http://kaldev.kaltura.com" +
+						"&entryId=-2" +
+						"&conversionProfile=5" +
+						"&maxUploads=1" +
+						"&maxFileSize=1" +
+						"&maxTotalSize=10" +
+						"&uiConfId=11500" +
+						"&jsDelegate=delegate" +
+						"&uploadUrl=http://flashvars/" +
+						"&externalInterfaceDisabled=0" + // 1-disable 0-enable
+//						"&permissions=1" +
+//						"&groupId=dogs" +
+//						"&siteUrl=milly.com" +
+//						"&screenName=Milly" +
+						"",
+			"name", "${application}",
+			"allowScriptAccess","always",
+			"type", "application/x-shockwave-flash",
+			"pluginspage", "http://www.adobe.com/go/getflashplayer"
+	);
+	} else {  // flash is too old or we can't detect the plugin
+		var alternateContent = 'Alternate HTML content should be placed here. '
+		+ 'This content requires the Adobe Flash Player. '
+		 + '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
+		document.write(alternateContent);  // insert non-flash content
+	}
+// -->
+</script>
+</div>
+
+
+	<form>
+		<input type="button" value="Browse" 		onclick="browse()">
+		<input type="button" value="Upload" 		onclick="upload()">
+		<input type="button" value="Add entries" 	onclick="addEntries()">
+		<input type="button" value="Cancel" 		onclick="stopUploads()">
+	</form>
+
+	<form>
+		<input type="text" id="mediaTypeInput" />
+		<input type="button" value="Set media type" onclick="setMediaType()">
+	</form>
+
+	<form>
+		<input type="button" value="Get Files " onclick="getFiles()">
+	</form>
+
+	<form>
+		<input type="text" value="enter tags here" id="tagsInput" />
+		<input type="text" value="0" id="tagsStartIndex" />
+		<input type="text" value="0" id="tagsEndIndex" />
+
+		<input type="button" value="Add tags" onclick="addTagsFromForm()">
+		<input type="button" value="Set tags" onclick="setTagsFromForm()">
+	</form>
+
+	<form>
+		<input type="text" value="enter title here" id="titleInput" />
+		<input type="text" value="0" id="titleStartIndex" />
+		<input type="text" value="0" id="titleEndIndex" />
+
+		<input type="button" value="Set title" onclick="setTitleFromForm()">
+	</form>
+
+	<form>
+		<input type="text" value="0" id="removeStartIndex" />
+		<input type="text" value="0" id="removeEndIndex" />
+
+		<input type="button" value="Remove Files" onclick="removeFilesFromForm()">
+	</form>
+
+	<form>
+		<input type="text" value="0" id="maxUploadsInput" />
+		<input type="button" value="Set max uploads" onclick="setMaxUploads(parseInt(maxUploadsInput.value))">
+	</form>
+
+	<form>
+		<input type="text" value="partner data goes here" id="partnerDataInput" />
+		<input type="button" value="Set partner data" onclick="setPartnerData(partnerDataInput.value)">
+
+		<input id="groupId" />
+		<input type="button" value="set group id " onClick="setGroupId(groupId.value)">
+
+		<input id="permissions" />
+		<input type="button" value="set permissions" onClick="setPermissions(permissions.value)">
+
+		<input id="screenName" />
+		<input type="button" value="Set screen name" onClick="setScreenName(screenName.value)">
+
+		<input id="siteUrl" />
+		<input type="button" value="set site url" onClick="setSiteUrl(siteUrl.value)">
+	</form>
+
+</body>
+</html>
