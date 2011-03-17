@@ -1,10 +1,14 @@
 package com.kaltura.upload.commands
 {
+	import com.kaltura.commands.uploadToken.UploadTokenAdd;
+	import com.kaltura.commands.uploadToken.UploadTokenUpload;
+	import com.kaltura.events.KalturaEvent;
 	import com.kaltura.net.PolledFileReference;
 	import com.kaltura.net.TemplateURLVariables;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileVO;
+	import com.kaltura.vo.KalturaUploadToken;
 	import com.kaltura.vo.importees.UploadStatusTypes;
 	
 	import flash.events.Event;
@@ -41,80 +45,62 @@ package com.kaltura.upload.commands
 			{
 				_activeFile = _files.shift();
 				model.currentlyUploadedFileVo = _activeFile;
-
-				setupFileListeners(_activeFile.file);
-				var uploadUrl:String = (model.uploadUrl != null) ? model.uploadUrl : model.serviceUrl;				
-				var uploadRequest:URLRequest = new URLRequest(uploadUrl);
-				uploadRequest.method = URLRequestMethod.POST;
-				uploadRequest.data = getURLVariables(_activeFile);
-				_activeFile.file.fileReference.upload(uploadRequest);
+				
+				var fileToken:KalturaUploadToken = new KalturaUploadToken();
+				fileToken.fileName = _activeFile.file.fileReference.name;
+				fileToken.fileSize = _activeFile.file.bytesTotal;
+				var uploadToken:UploadTokenAdd = new UploadTokenAdd(fileToken);
+				uploadToken.addEventListener(KalturaEvent.COMPLETE, uploadTokenAddHandler);
+				uploadToken.addEventListener(KalturaEvent.FAILED, onFileFailed);
+				
+				model.context.kc.post(uploadToken);
 			}
 			else
 			{
 				allFilesComplete()
 			}
 		}
-
-		private function fileCompleteHandler(e:Event):void
+		
+		/**
+		 * file token was added, now upload the file
+		 * */
+		private function uploadTokenAddHandler(event:KalturaEvent):void {
+			var tokenId:String = (event.data as KalturaUploadToken).id;
+			_activeFile.token = tokenId;
+			var uploadFile:UploadTokenUpload = new UploadTokenUpload(tokenId, _activeFile.file.fileReference);
+			uploadFile.addEventListener(KalturaEvent.COMPLETE, fileCompleteHandler);
+			uploadFile.addEventListener(KalturaEvent.FAILED, onFileFailed);
+			
+			model.context.kc.post(uploadFile);
+		}
+		
+		/**
+		 * file finished uploading
+		 * */
+		private function fileCompleteHandler(event:KalturaEvent):void
 		{
 			trace('finish uploading selected file(s)');
 			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_COMPLETE;
 			uploadNextFile();
 		}
-
-
-		private function setupFileListeners(file:PolledFileReference):void
-		{
-			file.fileReference.addEventListener(Event.COMPLETE, 							onFileComplete);
-			//file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, 				onUploadCompleteData);
-			file.fileReference.addEventListener(IOErrorEvent.IO_ERROR, 						onIoError );
-			file.fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, 			onSecurityError);
-			file.fileReference.addEventListener(ProgressEvent.PROGRESS, 					fileProgressHandler);
-			file.fileReference.addEventListener(Event.OPEN, 								fileOpenHandler);
-			file.addEventListener(Event.CANCEL,												polledFileReferenceCancelHandler);
+		
+		/**
+		 * upload error
+		 * */
+		private function onFileFailed(info:Object):void {
+			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_FAILED;
+			uploadNextFile();
 		}
-
-		private function removeFileListeners():void
-		{
-			_activeFile.file.fileReference.removeEventListener(Event.COMPLETE, 					onFileComplete);
-			//_importFileVO.polledfileReference.fileReference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, 	onUploadCompleteData);
-			_activeFile.file.fileReference.removeEventListener(IOErrorEvent.IO_ERROR, 				onIoError );
-			_activeFile.file.fileReference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,	onSecurityError);
-			_activeFile.file.fileReference.removeEventListener(Event.OPEN, 							fileOpenHandler);
-			_activeFile.file.fileReference.removeEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
-			_activeFile.file.removeEventListener(Event.CANCEL,										polledFileReferenceCancelHandler);
-		}
-
-		//FileReference handlers:
 
 		private function onFileComplete(evtComplete:Event):void
 		{
 			var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.SINGLE_UPLOAD_COMPLETE, [_activeFile]);
 			notifyShell.execute();
 
-			removeFileListeners();
 			uploadNextFile();
 		}
 
-		private function onIoError(evtIoError:IOErrorEvent):void
-		{
-			removeFileListeners();
-			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_FAILED;
-			uploadNextFile();
-		}
-
-		private function onSecurityError(evtSecurityError:SecurityErrorEvent):void
-		{
-			removeFileListeners();
-			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_FAILED;
-			uploadNextFile();
-		}
-
-		private function polledFileReferenceCancelHandler(evtCancel:Event):void
-		{
-			removeFileListeners();
-		}
-
+	
 		private function fileOpenHandler(openEvent:Event):void
 		{
 			//report the progress because if the upload is fast, the 0 bytes out of X progress event doesn't always dispatched
@@ -134,13 +120,6 @@ package com.kaltura.upload.commands
 			uploadURLVariables["filename"] = fileVO.guid;
 			return uploadURLVariables;
 		}
-		
-	/* 	private function getProxyURLVariables(fileVO:FileVO):URLVariables
-		{
-			var uploadURLVariables:TemplateURLVariables = new TemplateURLVariables(new Object());
-			uploadURLVariables["filename"] = fileVO.title;
-			return uploadURLVariables;
-		} */
 
 		private function allFilesComplete():void
 		{

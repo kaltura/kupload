@@ -12,6 +12,8 @@ package com.kaltura.upload.model
 		include "SingletonImpl.as"
 		//---------------------------------
 
+		public var context:Context = new Context();
+		
 		//Basic parameters
 		public var ks:String;
 		public var uid:String;

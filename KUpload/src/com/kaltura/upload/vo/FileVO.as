@@ -26,6 +26,7 @@ package com.kaltura.upload.vo
 		public var entryId:String;
 		public var uploadStatus:String = UploadStatusTypes.NOT_UPLOADED;
 		public var thumbnailUrl:String;
+		public var token:String;
 
 		public function set file(value:PolledFileReference):void
 		{

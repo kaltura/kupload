@@ -1,11 +1,16 @@
 package com.kaltura.upload.commands
 {
+	import com.kaltura.KalturaClient;
+	import com.kaltura.commands.uiConf.UiConfGet;
+	import com.kaltura.config.KalturaConfig;
+	import com.kaltura.events.KalturaEvent;
 	import com.kaltura.net.TemplateURLVariables;
 	import com.kaltura.upload.enums.KUploadStates;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileFilterVO;
 	import com.kaltura.utils.KConfigUtil;
+	import com.kaltura.vo.KalturaUiConf;
 	
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -39,21 +44,30 @@ package com.kaltura.upload.commands
 
 		private function saveBaseFlashVars():void
 		{
-			model.host		= _params.host;
-			model.ks 		= _params.ks;
-			model.partnerId = _params.partnerId;
-			model.subPId 	= _params.subPId;
-			model.uid 		= _params.uid;
+			var config:KalturaConfig = new KalturaConfig();
+			var hostAndDomain:String = _params.host;
+			//takes the prefix of host, 'http://' or 'https://'
+			var protocolEndIndex:int = hostAndDomain.indexOf('//')+2;
+			if (protocolEndIndex > 0 ) {
+				config.protocol = hostAndDomain.substr(0, protocolEndIndex);
+				config.domain = hostAndDomain.substr(protocolEndIndex);
+			}
+			config.ks = _params.ks;
+			config.partnerId = _params.partnerId;
+
+			model.context.kc = new KalturaClient(config);
+			model.context.subPartnerId = _params.partnerId;
+			model.context.userId = _params.uid;
+			model.context.partnerData = _params.partnerData;
+			model.context.permissions = _params.permissions;
+			model.context.groupId = _params.groupId;
 			model.entryId	= _params.entryId;
-			model.partnerData	= _params.partnerData;
 			model.uiConfId	= _params.uiConfId;
-			if(_params.kuploadUiconfId) model.uiConfId	= _params.kuploadUiconfId;
+			if(_params.kuploadUiconfId) 
+				model.uiConfId	= _params.kuploadUiconfId;
 			model.jsDelegate = _params.jsDelegate;
 			
 			model.externalInterfaceEnable = _params.externalInterfaceDisabled != '1';
-			
-			model.permissions 	= _params.permissions;
-			model.groupId 		= _params.groupId;
 			model.siteUrl 		= _params.siteUrl;
 			model.screenName 	= _params.screenName;
 			
@@ -71,49 +85,42 @@ package com.kaltura.upload.commands
 		{
 			model.baseRequestData =
 				{
-					ks: 		model.ks,
-					partner_id: model.partnerId,
-					subp_id: 	model.subPId,
-					uid: 		model.uid
+					ks: 		model.context.kc.ks,
+					partner_id: model.context.kc.partnerId,
+					subp_id: 	model.context.subPartnerId,
+					uid: 		model.context.userId
 				};
-			model.serviceUrl  	= model.host + "/index.php/partnerservices2/upload";
-			model.addEntryUrl 	= model.host + "/index.php/partnerservices2/addentry";
-			model.uploadUrl = model.uploadHost;
 		}
+		
+		/**
+		 * request ksu uiconf
+		 * */
 		private function loadConfiguration():void
 		{
-			var uiConfUrl:String = model.host + "/index.php/partnerservices2/getuiconf"
-			//var uiConfUrl = "http://localhost/sf/uiconf.xml"
-			
-			uiConfUrl += "?partner%5Fid=" + model.partnerId + "&ui%5Fconf%5Fid=" + model.uiConfId + "&uid=" + model.uid + "&subp%5Fid=" + model.subPId + "&ks=" + model.ks;
-			trace("uiConfUrl:" + uiConfUrl); 
-			
-			var urlRequest:URLRequest = new URLRequest(uiConfUrl);
-			/* var data:TemplateURLVariables = new TemplateURLVariables(model.baseRequestData);
-			data.ui_conf_id = model.uiConfId;
-
-			urlRequest.data = data; */
-			_configLoader = new URLLoader(urlRequest);
-			_configLoader.addEventListener(Event.COMPLETE, 						configLoaderCompleteHandler);
-			_configLoader.addEventListener(IOErrorEvent.IO_ERROR, 				configLoaderIoErrorHandler);
-			_configLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,	configLoaderSecurityErrorHandler);
+			var uiconfGet:UiConfGet = new UiConfGet(parseInt(model.uiConfId));
+			uiconfGet.addEventListener(KalturaEvent.COMPLETE, uiconfResult);
+			uiconfGet.addEventListener(KalturaEvent.FAILED, uiconfFault);
+			model.context.kc.post(uiconfGet);
 		}
-
-		private function configLoaderCompleteHandler(e:Event):void
-		{
-			parseConfiguration();
+		
+		private function uiconfFault(info:Object):void {
+			var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadErrorEvent.UI_CONF_ERROR);
+			notifyShell.execute();
+		}
+		
+		private function uiconfResult(event:KalturaEvent):void {
+			var result:KalturaUiConf = event.data as KalturaUiConf;
+			parseConfiguration(new XML(result.confFile));
 			saveConfigurationFlashVars();
-			kuploadReady()
+			kuploadReady();
+
 		}
-		private function parseConfiguration():void
+
+		/**
+		 * parse uiconf xml
+		 * */
+		private function parseConfiguration(configXml:XML):void
 		{
-			var xmlUiConf:XML = XML(_configLoader.data);
-			if (xmlUiConf.error.hasComplexContent())
-			{
-				dispatchUiConfError();
-				return;
-			}
-			var configXml:XML = XML(unescape(xmlUiConf..confFile.text()));
 			var xmlFileFilters:XML = configXml.fileFilters[0];
 			var fileFilters:Dictionary = new Dictionary();
 			var fileFiltersArr:Array = new Array();
@@ -145,16 +152,6 @@ package com.kaltura.upload.commands
 			model.serviceUrl = KConfigUtil.getDefaultValue(configXml.@uploadUrl, model.serviceUrl);
 			model.serviceUrl = KConfigUtil.getDefaultValue(_params.uploadUrl, model.serviceUrl);
 
-		}
-
-		private function configLoaderIoErrorHandler(e:IOErrorEvent):void
-		{
-			dispatchUiConfError();
-		}
-
-		private function configLoaderSecurityErrorHandler(e:IOErrorEvent):void
-		{
-			dispatchUiConfError();
 		}
 
 		private function dispatchUiConfError():void

@@ -1,28 +1,30 @@
 package com.kaltura.upload.commands
 {
-	import com.kaltura.net.TemplateURLVariables;
+	import com.kaltura.KalturaClient;
+	import com.kaltura.commands.MultiRequest;
+	import com.kaltura.commands.baseEntry.BaseEntryAddFromUploadedFile;
+	import com.kaltura.commands.media.MediaAddFromUploadedFile;
+	import com.kaltura.commands.notification.NotificationGetClientNotification;
+	import com.kaltura.events.KalturaEvent;
+	import com.kaltura.types.KalturaMediaType;
+	import com.kaltura.types.KalturaNotificationType;
 	import com.kaltura.upload.business.PartnerNotificationVO;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileVO;
-
+	import com.kaltura.vo.KalturaBaseEntry;
+	import com.kaltura.vo.KalturaClientNotification;
+	import com.kaltura.vo.KalturaMediaEntry;
+	
 	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.net.URLRequestMethod;
 
 	public class AddEntriesCommand extends BaseUploadCommand
 	{
-		private var _loader:URLLoader = new URLLoader
 
 		public function AddEntriesCommand():void
 		{
-			_loader.addEventListener(Event.COMPLETE, 					loaderCompleteHandler);
-			_loader.addEventListener(IOErrorEvent.IO_ERROR, 			ioErrorHandler);
-			_loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 		}
+		
 		override public function execute():void
 		{
 			if (model.error)
@@ -30,121 +32,106 @@ package com.kaltura.upload.commands
 				throw new Error("Cannot add entries, some uploads failed. Either re-upload or remove the files");
 				return;
 			}
-			var urlVars:TemplateURLVariables = getUrlVars();
-			var request:URLRequest = new URLRequest(model.addEntryUrl);
-			request.method = URLRequestMethod.POST;
-			request.data = urlVars;
-			_loader.load(request);
-			//new TemplateURLVariables(model.baseRequestData);
-
+			var mr:MultiRequest = new MultiRequest();
+			var requestIndex:int = 1;
+			for each (var fileVo:FileVO in model.files) {
+				//media entry
+				if (fileVo.mediaTypeCode && (
+					(fileVo.mediaTypeCode == KalturaMediaType.AUDIO.toString()) 
+					|| (fileVo.mediaTypeCode == KalturaMediaType.VIDEO.toString())
+					|| (fileVo.mediaTypeCode == KalturaMediaType.IMAGE.toString()))) 
+				{
+					var mediaEntry:KalturaMediaEntry = new KalturaMediaEntry();
+					mediaEntry.mediaType = parseInt(fileVo.mediaTypeCode);
+					updateKalturaBaseEntry(fileVo, mediaEntry as KalturaBaseEntry);
+					var addMediaEntry:MediaAddFromUploadedFile = new MediaAddFromUploadedFile(mediaEntry, fileVo.token);
+					mr.addAction(addMediaEntry);
+				}
+				//base entry
+				else
+				{
+					var kalturaEntry:KalturaBaseEntry = new KalturaBaseEntry();
+					updateKalturaBaseEntry(fileVo, kalturaEntry);
+					var addEntry:BaseEntryAddFromUploadedFile = new BaseEntryAddFromUploadedFile (kalturaEntry, fileVo.token, fileVo.entryType);
+					mr.addAction(addEntry);
+				}
+				requestIndex++;
+				//get notifications for entry
+				var getNotification:NotificationGetClientNotification = new NotificationGetClientNotification('entryId', KalturaNotificationType.ENTRY_ADD);
+				mr.mapMultiRequestParam(requestIndex - 1, 'id', requestIndex, 'entryId')
+				mr.addAction(getNotification);
+				requestIndex++;
+			}
+			
+			mr.addEventListener(KalturaEvent.COMPLETE, result);
+			mr.addEventListener(KalturaEvent.FAILED, fault);
+			
+			model.context.kc.post(mr);
 		}
-
-		private function loaderCompleteHandler(e:Event):void
-		{
-			try
-			{
-				var resultXml:XML = XML(_loader.data);
-		   		var entriesXmlList:XMLList = resultXml.result.entries.children();
-
-		   		var entryIdListArray:Array = new Array();
-		   		var i:int = 0;
-		   		for each (var entryXml:XML in entriesXmlList)
-		   		{
-		   			FileVO(model.files[i]).entryId = entryXml.id[0].toString();
-		   			FileVO(model.files[i]).thumbnailUrl = entryXml.thumbnailUrl[0].toString();
-		   			i++;
-		   		}
-				
-				var notificationVoList:Array = getNotificationsList(resultXml);
+		
+		/**
+		 * updates the given  KalturaBaseEntry according to the given fileVO
+		 * @param fileVo the given FileVO
+		 * @param kalturaBaseEntry the given baseEntry
+		 * @return kalturaBaseEntry
+		 * 
+		 */		
+		private function updateKalturaBaseEntry(fileVo:FileVO, kalturaBaseEntry:KalturaBaseEntry):void {
+			kalturaBaseEntry.name	= fileVo.title;
+			kalturaBaseEntry.creditUserName = model.screenName;
+			kalturaBaseEntry.creditUrl = model.siteUrl;
+			kalturaBaseEntry.conversionQuality = model.conversionProfile;
+			
+			if (fileVo.tags.length > 0)
+				kalturaBaseEntry.tags	= fileVo.tags.join(",");
+			
+			if (model.context.partnerData)
+				kalturaBaseEntry.partnerData = model.context.partnerData;
+			
+			if (model.context.groupId)
+				kalturaBaseEntry.groupId = parseInt(model.context.groupId);
+		}
+		
+		private function result (event:KalturaEvent) : void {
+			var resultArray:Array = event.data as Array;
+			var notificationsArray:Array = new Array();
+			for (var i:int = 0; i< (resultArray.length / 2); i++) {
+				if (resultArray[i] is KalturaBaseEntry) {
+					var entry:KalturaBaseEntry = resultArray[i] as KalturaBaseEntry;
+					(model.files[i] as FileVO).entryId = entry.id;
+					(model.files[i] as FileVO).thumbnailUrl = entry.thumbnailUrl;
+				} 
+				else {
+					dispatchAddEntryError();
+				}
+				//following response is for the get notofication request
+				i++;
+				if (resultArray[i] is KalturaClientNotification) {
+					var notification:KalturaClientNotification = (resultArray[i] as KalturaClientNotification);
+					var partnerNot:PartnerNotificationVO = new PartnerNotificationVO(notification.url, notification.data );
+					notificationsArray.push(partnerNot);
+				}
 			}
-			catch(e:Error)
+			//handle notifications
+			if (notificationsArray.length > 0)
 			{
-				dispatchAddEntryError();
-			}
-
-			if (notificationVoList.length > 0)
-			{
-				var sendNotifications:SendNotificationsCommand = new SendNotificationsCommand(notificationVoList);
+				var sendNotifications:SendNotificationsCommand = new SendNotificationsCommand(notificationsArray);
 				sendNotifications.execute();
 			}
 			else
 			{
-		   		var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.ENTRIES_ADDED, model.files);
-		   		notifyShell.execute();
+				var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.ENTRIES_ADDED, model.files);
+				notifyShell.execute();
 			}
+			
+			//clear files
 			model.files = [];
+		
 		}
-
-		private function getUrlVars():TemplateURLVariables
-		{
-			var urlVars:TemplateURLVariables = new TemplateURLVariables(model.baseRequestData);
-			urlVars["quick_edit"] = model.quickEdit.toString();
-			urlVars["kshow_id"] = model.entryId;
-
-			if (model.screenName)
-				urlVars["credits_screen_name"] 	= model.screenName;
-	   		if (model.siteUrl)
-	   			urlVars["credits_site_url"] 	= model.siteUrl;
-
-			var files:Array = model.files;
-			files.forEach(
-				function(fileVo:FileVO, index:int, filesList:Array):void
-				{
-					var entryIdx:int = index + 1;
-					urlVars["entry" + entryIdx + "_filename"]		= fileVo.guid;
-					urlVars["entry" + entryIdx + "_realFilename"] 	= "." + fileVo.extension;
-
-					if (fileVo.mediaTypeCode)
-					{
-						urlVars["entry" + entryIdx + "_mediaType"]	= fileVo.mediaTypeCode;
-						trace('file media type: ' + fileVo.mediaTypeCode);
-					}
-					if (fileVo.entryType)
-						urlVars["entry" + entryIdx + "_type"]		= fileVo.entryType;
-					urlVars["entry" + entryIdx + "_source"] 	= "1"; //upload
-					if (fileVo.tags.length > 0)
-						urlVars["entry" + entryIdx + "_tags"]		= fileVo.tags.join(",");
-					urlVars["entry" + entryIdx + "_name"] 		= fileVo.title;
-					if (model.partnerData)
-						urlVars["entry" + entryIdx + "_partnerData"] = model.partnerData;
-
-					if (model.groupId)
-						urlVars["entry" + entryIdx + "_groupId"] = model.groupId;
-					if (model.permissions)
-						urlVars["entry" + entryIdx + "_permission"] = model.permissions;
-
-					urlVars["entry" + entryIdx + "_conversionProfile"] = model.conversionProfile;
-				}
-			);
-
-			return urlVars;
-		}
-
-		private function ioErrorHandler(e:IOErrorEvent):void
-		{
+		
+		private function fault (info:Object) : void {
 			dispatchAddEntryError();
 		}
-
-		private function securityErrorHandler(e:SecurityErrorEvent):void
-		{
-			dispatchAddEntryError();
-		}
-
-		private function getNotificationsList(resultXml:XML):Array
-		{
-			var xmllNotification:XMLList = XML(resultXml.result.notifications[0]).children();
-
-			var notifications:Array = [];
-			for each(var xmlNotification:XML in xmllNotification)
-			{
-				var url:String 			= xmlNotification["url"].toString();
-				var queryString:String	= xmlNotification["params"].toString();
-				var notificationVO:PartnerNotificationVO = new PartnerNotificationVO(url, queryString);
-				notifications.push(notificationVO);
-			}
-
-	   		return notifications;
-	 	}
 
 	 	private function dispatchAddEntryError():void
 		{

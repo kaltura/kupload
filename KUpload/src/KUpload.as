@@ -15,6 +15,7 @@ package {
 	import com.kaltura.upload.enums.KUploadStates;
 	import com.kaltura.upload.events.ActionEvent;
 	import com.kaltura.upload.model.KUploadModelLocator;
+	import com.kaltura.upload.vo.FileVO;
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -70,7 +71,7 @@ package {
 			addCallbacks();
 
 			this.contextMenu = new ContextMenu();
-			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.0.23")];
+			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.1")];
 		}
 
 		public function drawFakeBg(hitAreaWidth : Number = 1024, hitAreaHeight : Number = 1024):void
@@ -150,7 +151,11 @@ package {
 
 		public function getFiles():Array
 		{
-			return _model.files;
+			var files:Array = new Array();
+			for each (var file:FileVO in _model.files) {
+				files.push(file.file.fileReference.name);
+			}
+			return files;
 		}
 
 		public function getTotalSize():uint
