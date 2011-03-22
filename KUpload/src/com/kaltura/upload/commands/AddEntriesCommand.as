@@ -92,14 +92,18 @@ package com.kaltura.upload.commands
 				kalturaBaseEntry.groupId = parseInt(model.context.groupId);
 		}
 		
+		/**
+		 * handle result for "addentries" multirequest
+		 * */
 		private function result (event:KalturaEvent) : void {
 			var resultArray:Array = event.data as Array;
 			var notificationsArray:Array = new Array();
-			for (var i:int = 0; i< (resultArray.length / 2); i++) {
+			for (var i:int = 0; i< resultArray.length; i++) {
 				if (resultArray[i] is KalturaBaseEntry) {
 					var entry:KalturaBaseEntry = resultArray[i] as KalturaBaseEntry;
-					(model.files[i] as FileVO).entryId = entry.id;
-					(model.files[i] as FileVO).thumbnailUrl = entry.thumbnailUrl;
+					//location in model.files is always /2 since we also count here the notification requests
+					(model.files[i/2] as FileVO).entryId = entry.id;
+					(model.files[i/2] as FileVO).thumbnailUrl = entry.thumbnailUrl;
 				} 
 				else {
 					dispatchAddEntryError();
@@ -124,7 +128,7 @@ package com.kaltura.upload.commands
 				notifyShell.execute();
 			}
 			
-			//clear files
+			//clear already added files
 			model.files = [];
 		
 		}

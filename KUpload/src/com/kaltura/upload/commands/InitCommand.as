@@ -45,13 +45,20 @@ package com.kaltura.upload.commands
 		private function saveBaseFlashVars():void
 		{
 			var config:KalturaConfig = new KalturaConfig();
-			var hostAndDomain:String = _params.host;
-			//takes the prefix of host, 'http://' or 'https://'
-			var protocolEndIndex:int = hostAndDomain.indexOf('//')+2;
-			if (protocolEndIndex > 0 ) {
-				config.protocol = hostAndDomain.substr(0, protocolEndIndex);
-				config.domain = hostAndDomain.substr(protocolEndIndex);
+			var protocol:String;
+			var hostFlashvar:String = _params.host;
+			//backward competability, support when "http" is inside the "host" flashvar
+			if (hostFlashvar.substr(0,4)=="http") {
+				//takes the prefix of host, 'http://' or 'https://'
+				var protocolEndIndex:int = hostFlashvar.indexOf('//')+2;
+				config.protocol = hostFlashvar.substr(0, protocolEndIndex);
+				config.domain = hostFlashvar.substr(protocolEndIndex);		
 			}
+			else {
+				config.protocol = _params.protocol;
+				config.domain = _params.host;
+			}
+		
 			config.ks = _params.ks;
 			config.partnerId = _params.partnerId;
 
@@ -141,6 +148,8 @@ package com.kaltura.upload.commands
 			model.fileFilterVoList = fileFilters;
 			model.fileFiltersArr = fileFiltersArr;
 			model.activeFileFilterVO = fileFilters[xmlFileFilters.@default.toString()];
+			if (model.activeFileFilterVO)
+				setFiltersOrder();
 
 			var xmlLimits:XML = configXml.limits[0];
 			model.maxUploads 	= KConfigUtil.getDefaultValue(xmlLimits.@maxUploads[0], model.maxUploads);
@@ -148,9 +157,7 @@ package com.kaltura.upload.commands
 			model.maxTotalSize	= KConfigUtil.getDefaultValue(xmlLimits.@maxTotalSize[0], model.maxTotalSize);
 
 			model.conversionProfile	= KConfigUtil.getDefaultValue(configXml.@conversionProfile[0], model.conversionProfile);
-
-			model.serviceUrl = KConfigUtil.getDefaultValue(configXml.@uploadUrl, model.serviceUrl);
-			model.serviceUrl = KConfigUtil.getDefaultValue(_params.uploadUrl, model.serviceUrl);
+			model.uploadUrl = KConfigUtil.getDefaultValue(configXml.@uploadUrl, model.uploadUrl);
 
 		}
 
@@ -175,6 +182,24 @@ package com.kaltura.upload.commands
 			model.maxTotalSize	= KConfigUtil.getDefaultValue(_params.maxTotalSize, 	model.maxTotalSize);
 			model.maxUploads	= KConfigUtil.getDefaultValue(_params.maxUploads, 	model.maxUploads);
 			model.conversionProfile	= KConfigUtil.getDefaultValue(_params.conversionProfile, model.conversionProfile);
+			model.uploadUrl	= KConfigUtil.getDefaultValue(_params.uploadUrl, model.uploadUrl);
+		 
+		}
+		
+		private function setFiltersOrder():void
+		{
+			var fileFilters:Array = new Array();
+			var fileFilterVo:FileFilterVO = model.activeFileFilterVO;
+			for each(var ffVo:FileFilterVO in model.fileFiltersArr)
+			{
+				if(ffVo.mediaType == fileFilterVo.mediaType)
+				{
+					fileFilters.push(ffVo);
+					break;
+				}
+			}
+			
+			model.selectedFileFilterArr = fileFilters;
 		}
 
 	}

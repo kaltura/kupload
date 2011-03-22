@@ -23,18 +23,14 @@ package com.kaltura.upload.model
 		public var externalInterfaceEnable:Boolean;
 		public var host:String = "http://www.kaltura.com";
 
-		//uplaoder specific
-		public var permissions:String;
-		public var groupId:String;
+
 		public var screenName:String;
 		public var siteUrl:String;
 
+		//deprecated 
 		public var quickEdit:Boolean = true;
-		public var partnerData:String;
-		public var serviceUrl:String;
 		public var uploadUrl:String;
 		public var uploadHost:String
-		public var addEntryUrl:String;
 		public var entryId:String = "-1";
 		public var fileFilterVoList:Dictionary; /*of FileFilterVO, key: file filter id*/
 		public var fileFiltersArr:Array;

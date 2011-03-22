@@ -193,18 +193,18 @@ package {
 
 		public function setPartnerData(value:String):void
 		{
-			_model.partnerData = value;
+			_model.context.partnerData = value;
 		}
 
 		public function setGroupId(value:String):void
 		{
-			_model.groupId = value;
+			_model.context.groupId = value;
 		}
 
 		public function setPermissions(value:String):void
 		{
 
-			_model.permissions = value;
+			_model.context.permissions = parseInt(value);
 		}
 
 		public function setSiteUrl(value:String):void

@@ -25,11 +25,11 @@ package com.kaltura.upload.commands
 			trace('execute NotifyShellCommand with event: ' + _eventName);
 			if(model.externalInterfaceEnable)
 			{
-				var jsArgs:Array = _args ? new Array() : null;
+				/*var jsArgs:Array = _args ? new Array() : null;
 				for each(var arg:Object in _args)
-					jsArgs.push(arg is FileVO ? (arg as FileVO).file.fileReference.name : arg);
+					jsArgs.push(arg is FileVO ? (arg as FileVO).file.fileReference : arg);*/
 					
-				ExternalInterface.call(fullExpression, jsArgs);
+				ExternalInterface.call(fullExpression, _args);
 			}
 			KUploadController.getInstance().getApp().dispatchActionEvent(fullExpression, _args);
 		}

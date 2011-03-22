@@ -29,7 +29,7 @@ package com.kaltura.upload.commands
 		private function setFiltersOrder():void
 		{
 			var fileFilters:Array = new Array();
-			var fileFilterVo:FileFilterVO = model.fileFilterVoList[_mediaType];
+			var fileFilterVo:FileFilterVO = model.activeFileFilterVO;
 			for each(var ffVo:FileFilterVO in model.fileFiltersArr)
 			{
 				if(ffVo.mediaType == fileFilterVo.mediaType)

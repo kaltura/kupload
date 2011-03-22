@@ -72,7 +72,10 @@ var requiredRevision = ${version_revision};
 
 	delegate.entriesAddedHandler = function(entries)
 	{
-		alert(entries[0].entryId)
+		var addedEntries = "";
+		for (var i=0; i<entries.length; i++)
+			addedEntries += entries[i].entryId + ",";
+		alert("added entries: " + addedEntries);
 	}
 
 	delegate.progressHandler = function(args)
@@ -300,21 +303,22 @@ jsDelegate=delegate"></object>
 			"wmode", "transparent",
 			"bgcolor", "${bgcolor}",
 			"flashvars",
-						"ks=NDVjZDRjYWEyNThjOTdjYzAzMTA5N2ViMzRhZDQzMTRhYzA3YTM3MXwyMDQ7MjA0OzEzMDA0Njk4OTU7MjsxMzAwMzgzNDk1LjU5MjQ7bWljaGFsQG1haWxpbmF0b3IuY29tOzs7" +
+						"ks=ZGM4NDY0MWVhNzQ1ZThjNWQwOTM1N2Y2NDdhZTU3ZmJjYTdhMjRmYnwyMDQ7MjA0OzEzMDA4OTAyNTM7MjsxMzAwODAzODUzLjg0OTM7bWljaGFsQG1haWxpbmF0b3IuY29tOzs7" +
 						"&uid=204" +
 						"&partnerId=204" +
 					//	"&subPId=56900" +
-						"&host=http://newkaldev.kaltura.dev" +
+						"&protocol=http://" +
+						"&host=newkaldev.kaltura.dev" +
 						//"&uploadHost=http://kaldev.kaltura.com" +
 						"&entryId=-2" +
-						"&conversionProfile=5" +
+						"&conversionProfile=89" +
 					//	"&maxUploads=1" +
 					//	"&maxFileSize=1" +
 					//	"&maxTotalSize=10" +
 						"&uiConfId=1008511" +
 						"&jsDelegate=delegate" +
 					//	"&uploadHost=https://www.kaltura.com/index.php/partnerservices2/upload" +
-					//	"&uploadUrl=http://flashvars/" +
+					//	"&uploadUrl=http://newkaldev.kaltura.dev/index.php/partnerservices2/upload" +
 						"&externalInterfaceDisabled=0" + // 1-disable 0-enable
 //						"&permissions=1" +
 //						"&groupId=dogs" +
