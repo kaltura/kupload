@@ -112,7 +112,10 @@ var requiredRevision = ${version_revision};
 	function getFiles()
 	{
 		var files = app.getFiles();
-		console.log(files[0].title);
+		var filesList = "";
+		for (var i=0; i<files.length; i++)
+			filesList += files[i] + ",";
+		console.log("got files : " + filesList);
 	}
 
 	function addEntries()
