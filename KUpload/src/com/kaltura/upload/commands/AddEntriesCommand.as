@@ -62,7 +62,7 @@ package com.kaltura.upload.commands
 				mr.addAction(getNotification);
 				requestIndex++;
 			}
-			
+
 			mr.addEventListener(KalturaEvent.COMPLETE, result);
 			mr.addEventListener(KalturaEvent.FAILED, fault);
 			
@@ -81,6 +81,7 @@ package com.kaltura.upload.commands
 			kalturaBaseEntry.creditUserName = model.screenName;
 			kalturaBaseEntry.creditUrl = model.siteUrl;
 			kalturaBaseEntry.conversionQuality = model.conversionProfile;
+			kalturaBaseEntry.userId = model.context.userId;
 			
 			if (fileVo.tags.length > 0)
 				kalturaBaseEntry.tags	= fileVo.tags.join(",");
