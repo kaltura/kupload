@@ -127,10 +127,11 @@ package com.kaltura.upload.commands
 			{
 				var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.ENTRIES_ADDED, model.files);
 				notifyShell.execute();
+				//clear already added files
+				model.files = [];
 			}
 			
-			//clear already added files
-			model.files = [];
+			
 		
 		}
 		

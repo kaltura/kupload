@@ -13,6 +13,7 @@ package com.kaltura.upload.events
 		public static const FILE_SIZE_EXCEEDS:String 	= "fileSizeExceeds";
 		public static const TOTAL_SIZE_EXCEEDS:String 	= "totalSizeExceeds";
 		public static const NUM_FILES_EXCEEDS:String 	= "numFilesExceeds";
+		public static const WRONG_FILE_TYPE:String 		= "wrongFileType";
 
 		public function KUploadErrorEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
