@@ -18,14 +18,16 @@ package com.kaltura.upload.commands
 			if (fileFilterVo)
 			{
 				model.activeFileFilterVO = fileFilterVo;
-				setFiltersOrder();
+				model.selectedFileFilterArr = new Array(model.activeFileFilterVO);
+				//setFiltersOrder();
 			}
 			else
 			{
 				throw new Error("No such file filter id: " + _mediaType);
 			}
 		}
-		
+/*		
+		//deprecated
 		private function setFiltersOrder():void
 		{
 			var fileFilters:Array = new Array();
@@ -39,16 +41,8 @@ package com.kaltura.upload.commands
 				}
 			}
 			
-			/* for each(var ffVo1:FileFilterVO in model.fileFiltersArr)
-			{
-				if(ffVo1.mediaType != fileFilterVo.mediaType)
-				{
-					fileFilters.push(ffVo1);
-				}
-			} */
-			
 			model.selectedFileFilterArr = fileFilters;
-		}
+		}*/
 
 	}
 }

@@ -71,7 +71,7 @@ package {
 			addCallbacks();
 
 			this.contextMenu = new ContextMenu();
-			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.2")];
+			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.3")];
 		}
 
 		public function drawFakeBg(hitAreaWidth : Number = 1024, hitAreaHeight : Number = 1024):void
