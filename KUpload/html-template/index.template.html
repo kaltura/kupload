@@ -203,6 +203,11 @@ var requiredRevision = ${version_revision};
 	{
 		app.setScreenName(value);
 	}
+	
+	function getError() {
+		error = app.getError();
+		alert(error);
+	}
 
 
 
@@ -349,6 +354,7 @@ jsDelegate=delegate"></object>
 		<input type="button" value="Upload" 		onclick="upload()">
 		<input type="button" value="Add entries" 	onclick="addEntries()">
 		<input type="button" value="Cancel" 		onclick="stopUploads()">
+		<input type="button" value="Get Error" 		onclick="getError()">
 	</form>
 
 	<form>

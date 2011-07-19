@@ -72,7 +72,7 @@ package com.kaltura.upload.commands
 					model.error = KUploadErrorEvent.WRONG_FILE_TYPE;
 					//clean all files
 					files = [];
-					break;
+					return;
 				}
 				if (model.activeFileFilterVO) {
 					fileVO.mediaTypeCode = model.activeFileFilterVO.mediaType;
