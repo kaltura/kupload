@@ -68,6 +68,8 @@ package com.kaltura.upload.model
 		}
 
 		public var uploadedErrorIndices:Array;
+		
+		public var selectedErrorIndices:Array;
 
 		public var error:String;
 		public var exceedingFilesIndices:Array;

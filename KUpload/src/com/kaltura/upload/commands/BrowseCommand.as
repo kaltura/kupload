@@ -61,18 +61,22 @@ package com.kaltura.upload.commands
 			else
 				_files = [_singlefileReference];
 
-			for each(var file:FileReference in _files)
-			{
+			model.selectedErrorIndices = new Array();
+			
+			for (var i:int = 0; i<_files.length; i++) {
+				var file:FileReference = _files[i] as FileReference;
+			
+			/*for each(var file:FileReference in _files)
+			{*/
 				var fileVO:FileVO = new FileVO();
 				fileVO.file = new PolledFileReference(file);
 				fileVO.title = file.name;
 				var nameSplitted:Array = file.name.split(".");
 				fileVO.extension = nameSplitted[nameSplitted.length-1];
-				if (!isValidType(fileVO.extension)) {
+				if (!isValidType(fileVO.extension)) 
+				{
+					model.selectedErrorIndices.push(i);
 					model.error = KUploadErrorEvent.WRONG_FILE_TYPE;
-					//clean all files
-					files = [];
-					return;
 				}
 				if (model.activeFileFilterVO) {
 					fileVO.mediaTypeCode = model.activeFileFilterVO.mediaType;
@@ -83,9 +87,11 @@ package com.kaltura.upload.commands
 			}
 			
 			model.files = model.files.concat(files);
-			trace('validate selected file(s)');
-			var validateLimitationsCommand:ValidateLimitationsCommand = new ValidateLimitationsCommand();
-			validateLimitationsCommand.execute();
+			if (model.selectedErrorIndices.length == 0) {
+				trace('validate selected file(s)');
+				var validateLimitationsCommand:ValidateLimitationsCommand = new ValidateLimitationsCommand();
+				validateLimitationsCommand.execute();
+			}
 			trace('notify upload event with selected file(s)');
 			var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.SELECT);
 			notifyShell.execute()

@@ -71,7 +71,7 @@ package {
 			addCallbacks();
 
 			this.contextMenu = new ContextMenu();
-			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.4")];
+			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.5")];
 		}
 
 		public function drawFakeBg(hitAreaWidth : Number = 1024, hitAreaHeight : Number = 1024):void
@@ -184,6 +184,11 @@ package {
 			return _model.uploadedErrorIndices;
 		}
 
+		public function getSelectedErrorIndices():Array
+		{
+			return _model.selectedErrorIndices;
+		}
+
 		public function setMaxUploads(value:uint):void
 		{
 			_model.maxUploads = value;
@@ -237,6 +242,7 @@ package {
 				ExternalInterface.addCallback("getError", getError);
 				ExternalInterface.addCallback("getExceedingFilesIndices", getExceedingFilesIndices);
 				ExternalInterface.addCallback("getUploadedErrorIndices", getUploadedErrorIndices);
+				ExternalInterface.addCallback("getSelectedErrorIndices", getSelectedErrorIndices);
 				ExternalInterface.addCallback("setMaxUploads", setMaxUploads);
 				ExternalInterface.addCallback("setPartnerData", setPartnerData);
 	

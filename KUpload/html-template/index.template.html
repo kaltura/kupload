@@ -208,6 +208,12 @@ var requiredRevision = ${version_revision};
 		error = app.getError();
 		alert(error);
 	}
+	
+	function getErrorIndices() {
+		indices = app.getSelectedErrorIndices();
+		console.log(indices);
+		alert(indices.join(","));
+	}
 
 
 
@@ -355,6 +361,7 @@ jsDelegate=delegate"></object>
 		<input type="button" value="Add entries" 	onclick="addEntries()">
 		<input type="button" value="Cancel" 		onclick="stopUploads()">
 		<input type="button" value="Get Error" 		onclick="getError()">
+		<input type="button" value="Get Error Indices" 		onclick="getErrorIndices()">
 	</form>
 
 	<form>
