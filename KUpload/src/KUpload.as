@@ -64,15 +64,25 @@ package {
 			stage.align = StageAlign.TOP_LEFT;
 		    stage.scaleMode = StageScaleMode.NO_SCALE;
 			trace("call init command");
-			var initCommand:BaseUploadCommand = new InitCommand(stage.loaderInfo.parameters, root.loaderInfo.parameters);
+			
+			var initCommand:BaseUploadCommand
+			if(!injectedFlashvars)
+				initCommand = new InitCommand(stage.loaderInfo.parameters, root.loaderInfo.parameters);
+			else
+				initCommand = new InitCommand(injectedFlashvars, root.loaderInfo.parameters);
 			initCommand.execute();
 			_hitArea.addEventListener(MouseEvent.CLICK, clickHandler);
-
+			
 			addCallbacks();
-
+			
 			this.contextMenu = new ContextMenu();
-			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.5")];
+			this.contextMenu.customItems = [new ContextMenuItem("KUpload v.1.2.6_for_KVPM")];
 		}
+		
+		//for flash/flex loading 
+		public var injectedFlashvars:Object;
+		
+
 
 		public function drawFakeBg(hitAreaWidth : Number = 1024, hitAreaHeight : Number = 1024):void
 		{
