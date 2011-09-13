@@ -81,6 +81,7 @@ package com.kaltura.upload.commands
 			kalturaBaseEntry.creditUserName = model.screenName;
 			kalturaBaseEntry.creditUrl = model.siteUrl;
 			kalturaBaseEntry.conversionQuality = model.conversionProfile;
+			kalturaBaseEntry.conversionProfileId = model.conversionProfile;
 			kalturaBaseEntry.userId = model.context.userId;
 			
 			if (fileVo.tags.length > 0)
