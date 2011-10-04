@@ -80,8 +80,15 @@ package com.kaltura.upload.commands
 			kalturaBaseEntry.name	= fileVo.title;
 			kalturaBaseEntry.creditUserName = model.screenName;
 			kalturaBaseEntry.creditUrl = model.siteUrl;
-			kalturaBaseEntry.conversionQuality = model.conversionProfile;
-			kalturaBaseEntry.conversionProfileId = model.conversionProfile;
+			
+			if (model.conversionMapping[fileVo.extension] != null){
+				kalturaBaseEntry.conversionQuality = model.conversionMapping[fileVo.extension];
+				kalturaBaseEntry.conversionProfileId = model.conversionMapping[fileVo.extension];
+			} else {
+				kalturaBaseEntry.conversionQuality = model.conversionProfile;
+				kalturaBaseEntry.conversionProfileId = model.conversionProfile;
+			}
+			
 			kalturaBaseEntry.userId = model.context.userId;
 			
 			if (fileVo.tags.length > 0)

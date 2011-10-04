@@ -15,13 +15,19 @@ package com.kaltura.upload.commands
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.net.FileFilter;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
+	import flash.utils.Timer;
 
 	public class InitCommand extends BaseUploadCommand
 	{
+		static private const MAP_PAIR_DLM:String = ";";
+		static private const MAP_KEYS_VAL_DLM:String = ":";
+		static private const MAP_KEY_LIST_DLM:String = ",";
+		
 		private var _params:Object;
 		private var _innerParams:Object;
 		private var _configLoader:URLLoader;
@@ -158,7 +164,29 @@ package com.kaltura.upload.commands
 
 			model.conversionProfile	= KConfigUtil.getDefaultValue(configXml.@conversionProfile[0], model.conversionProfile);
 			model.uploadUrl = KConfigUtil.getDefaultValue(configXml.@uploadUrl, model.uploadUrl);
-
+			
+			var map:Object = parseCMUIVar(configXml);
+			model.conversionMapping = map != null ? map : model.conversionMapping;
+		}
+		
+		// Parses the conversion mapping from the loaded UIconf
+		private function parseCMUIVar(configXml:XML):Object{
+			var map:Object = new Object();
+			if (configXml.conversionMapping.length() > 0 && configXml.conversionMapping.profile.length() > 0){
+				var profileList:XMLList = configXml.conversionMapping[0].profile;
+				for each (var profile:XML in profileList){
+					var convID:String = profile.@id.toString();
+					var extStrs:Array = profile.@extensions.toString().split(";");
+					for each (var extStr:String in extStrs){
+						var extension:String = extStr.split(".")[1];
+						map[extension] = convID;
+					}
+				}
+			} else {
+				return null;
+			}
+			
+			return map;
 		}
 
 		private function dispatchUiConfError():void
@@ -183,7 +211,48 @@ package com.kaltura.upload.commands
 			model.maxUploads	= KConfigUtil.getDefaultValue(_params.maxUploads, 	model.maxUploads);
 			model.conversionProfile	= KConfigUtil.getDefaultValue(_params.conversionProfile, model.conversionProfile);
 			model.uploadUrl	= KConfigUtil.getDefaultValue(_params.uploadUrl, model.uploadUrl);
-		 
+		 	
+			if (_params.conversionMapping != null){
+				var map:Object = parseCMFlashVar(_params.conversionMapping);
+				model.conversionMapping = map != null ? map : model.conversionMapping;
+			}
+		}
+		
+		// Parses the conversion mapping from a properly formatted string 
+		private function parseCMFlashVar(value:String):Object{
+			var mapObj:Object= new Object();
+			var pairs:Array = value.split(MAP_PAIR_DLM);
+			for each (var pair:String in pairs){
+				if (pair.length > 0){
+					if (pair.indexOf(MAP_KEYS_VAL_DLM) != -1) {
+						var keysNValue:Array = pair.split(MAP_KEYS_VAL_DLM);
+						var keysStr:String = keysNValue[0] as String;
+						var keys:Array = keysStr.split(MAP_KEY_LIST_DLM);
+						var convProfile:String = keysNValue[1] as String;
+						for each (var extension:String in keys){
+							if (mapObj[extension] == null){
+								mapObj[extension] = convProfile;
+							}
+						}
+					} else {
+						prepareWarningError("The conversionMapping flashVar is formatted incorrectly. The keys and conversion profile ID in each set must be seperated by a colon (:) sign.");
+						return null;
+					}
+				}
+			}
+			
+			return mapObj;
+		}
+		
+		private function prepareWarningError(message:String):void
+		{
+			function warningErrorTimerHandler(evt:TimerEvent):void{
+				var timer:Timer = evt.target as Timer
+				throw new Error("Warning: " + message);
+			}
+			var timer:Timer = new Timer(0,1);
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, warningErrorTimerHandler);
+			timer.start();
 		}
 		
 		private function setFiltersOrder():void

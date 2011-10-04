@@ -48,6 +48,7 @@ package com.kaltura.upload.model
 		public var maxUploads:uint;
 
 		public var conversionProfile:String;
+		public var conversionMapping:Object;
 
 		public var files:Array = []; /*of FileVO*/
 
