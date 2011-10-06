@@ -81,7 +81,7 @@ package com.kaltura.upload.commands
 			kalturaBaseEntry.creditUserName = model.screenName;
 			kalturaBaseEntry.creditUrl = model.siteUrl;
 			
-			if (model.conversionMapping[fileVo.extension] != null){
+			if (model.conversionMapping != null && model.conversionMapping[fileVo.extension] != null){
 				kalturaBaseEntry.conversionQuality = model.conversionMapping[fileVo.extension];
 				kalturaBaseEntry.conversionProfileId = model.conversionMapping[fileVo.extension];
 			} else {
