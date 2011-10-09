@@ -178,7 +178,9 @@ package com.kaltura.upload.commands
 					var convID:String = profile.@id.toString();
 					var extStrs:Array = profile.@extensions.toString().split(";");
 					for each (var extStr:String in extStrs){
-						var extension:String = extStr.split(".")[1];
+						
+						// Converting letter capitalization to lower case to enable ignore case later.
+						var extension:String = (extStr.split(".")[1] as String).toLowerCase();
 						map[extension] = convID;
 					}
 				}
@@ -230,8 +232,11 @@ package com.kaltura.upload.commands
 						var keys:Array = keysStr.split(MAP_KEY_LIST_DLM);
 						var convProfile:String = keysNValue[1] as String;
 						for each (var extension:String in keys){
-							if (mapObj[extension] == null){
-								mapObj[extension] = convProfile;
+							
+							// Converting letter capitalization to lower case to enable ignore case later.
+							var lowerExt:String = extension.toLowerCase();
+							if (mapObj[lowerExt] == null){
+								mapObj[lowerExt] = convProfile;
 							}
 						}
 					} else {

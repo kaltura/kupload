@@ -10,6 +10,7 @@ package com.kaltura.upload.commands
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
 	import flash.net.FileReferenceList;
+	import flash.sampler.NewObjectSample;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.mx_internal;
@@ -53,7 +54,14 @@ package com.kaltura.upload.commands
 			var files:Array = []; /*of FileReference*/
 			_allowedExtensionsArray = new Array();
 			for each (var ffilter:FileFilter in _fileFilters) {
-				_allowedExtensionsArray.push(new ArrayCollection((ffilter.extension.split(";"))));
+//				_allowedExtensionsArray.push(new ArrayCollection((ffilter.extension.split(";"))));
+				
+				var extensions:Array = ffilter.extension.split(";");
+				for (var extIndex:int = 0; extIndex < extensions.length; extIndex++) 
+				{
+					extensions[extIndex] = (extensions[extIndex] as String).toLowerCase();
+				}
+				_allowedExtensionsArray.push(new ArrayCollection(extensions));
 			}
 			
 			if (selectEvent.target == _fileReferenceList)
@@ -98,8 +106,9 @@ package com.kaltura.upload.commands
 		}
 		
 		private function isValidType(type:String):Boolean {
+			var lowerCase:String = type.toLowerCase();
 			for (var i:int = 0; i<_allowedExtensionsArray.length; i++) {
-				if ((_allowedExtensionsArray[i] as ArrayCollection).contains('*.'+type))
+				if ((_allowedExtensionsArray[i] as ArrayCollection).contains('*.'+lowerCase))
 					return true;
 			}
 			

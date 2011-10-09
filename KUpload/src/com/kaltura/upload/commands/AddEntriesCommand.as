@@ -81,9 +81,11 @@ package com.kaltura.upload.commands
 			kalturaBaseEntry.creditUserName = model.screenName;
 			kalturaBaseEntry.creditUrl = model.siteUrl;
 			
-			if (model.conversionMapping != null && model.conversionMapping[fileVo.extension] != null){
-				kalturaBaseEntry.conversionQuality = model.conversionMapping[fileVo.extension];
-				kalturaBaseEntry.conversionProfileId = model.conversionMapping[fileVo.extension];
+			// Ignoring letter capitalization in the file's extension.
+			var lowered:String = fileVo.extension.toLowerCase();
+			if (model.conversionMapping != null && model.conversionMapping[lowered] != null){
+				kalturaBaseEntry.conversionQuality = model.conversionMapping[lowered];
+				kalturaBaseEntry.conversionProfileId = model.conversionMapping[lowered];
 			} else {
 				kalturaBaseEntry.conversionQuality = model.conversionProfile;
 				kalturaBaseEntry.conversionProfileId = model.conversionProfile;
@@ -149,7 +151,7 @@ package com.kaltura.upload.commands
 
 	 	private function dispatchAddEntryError():void
 		{
-			var notifyShell:NotifyShellCommand = NotifyShellCommand(KUploadErrorEvent.ADD_ENTRY_FAILED);
+			var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadErrorEvent.ADD_ENTRY_FAILED);
 			notifyShell.execute();
 		}
 	}
