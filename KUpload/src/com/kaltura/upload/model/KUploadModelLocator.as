@@ -54,9 +54,9 @@ package com.kaltura.upload.model
 
 		public var currentlyUploadedFileVo:FileVO;
 
-		public function get totalSize():uint
+		public function get totalSize():Number
 		{
-			var totalKb:uint;
+			var totalKb:Number = 0;
 
 			files.forEach
 			(

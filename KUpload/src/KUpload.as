@@ -158,7 +158,7 @@ package {
 			return files;
 		}
 
-		public function getTotalSize():uint
+		public function getTotalSize():Number
 		{
 			return _model.totalSize;
 		}
