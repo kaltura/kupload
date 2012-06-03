@@ -47,6 +47,21 @@ var requiredRevision = ${version_revision};
 	var app;
 	var delegate = {};
 
+document.onkeydown	= key_event;
+var prevKey	= "";
+function key_event(evt){
+	if(typeof(evt) == "undefined")
+		evt	= event;
+	
+	if(prevKey == "18" && evt.keyCode=="66"){
+		app.openBrowse();
+		prevKey = "";
+	}else{
+		prevKey	= evt.keyCode;
+	}
+}
+
+
 	//KUploader callbacks
 	delegate.readyHandler = function()
 	{
@@ -261,6 +276,8 @@ var requiredRevision = ${version_revision};
 </head>
 
 <body scroll="no" onload=onLoadHandler()>
+<input type="button" value="Test" 		onclick="browse()">
+
 <div id="flashContainer">
 	<span>Upload</span>
 <script language="JavaScript" type="text/javascript">
@@ -351,10 +368,12 @@ jsDelegate=delegate"></object>
 		 + '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
 		document.write(alternateContent);  // insert non-flash content
 	}
+document.getElementById("uploader").tabIndex	= "0";
+document.getElementById("uploader").focus();
 // -->
 </script>
 </div>
-
+<br/>
 
 	<form>
 		<input type="button" value="Browse" 		onclick="browse()">
