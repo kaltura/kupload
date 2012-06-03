@@ -16,14 +16,23 @@ package {
 	import com.kaltura.upload.events.ActionEvent;
 	import com.kaltura.upload.model.KUploadModelLocator;
 	import com.kaltura.upload.vo.FileVO;
+	import com.swffocus.SWFFocus;
 	
+	import fl.core.UIComponent;
+	
+	import flash.accessibility.AccessibilityProperties;
+	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.external.ExternalInterface;
+	import flash.net.FileReferenceList;
+	import flash.net.URLRequest;
 	import flash.system.Security;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
@@ -36,8 +45,61 @@ package {
 		
 		public function KUpload()
 		{
+			Security.allowDomain("*");
+			mouseChildren=true;
+			SWFFocus.init(this.stage);
 			KUploadController.getInstance().registerApp(this);
+
+			addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+			addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
 			init();
+		}
+		
+		private var _isShiftDown:Boolean	= false;
+		private var _isTabDown:Boolean		= false;
+		
+		private function onKeyDown(e:KeyboardEvent):void{
+			switch(String(e.keyCode)){
+				case "16"://shift
+					_isShiftDown	= true;
+					break;
+				case "9"://tab
+					_isTabDown		= true;
+					break;
+			}
+		}
+		
+		private function onKeyUp(e:KeyboardEvent):void{
+			switch(String(e.keyCode)){
+				case "16"://shift
+					_isShiftDown	= false;
+					break;
+				case "9"://tab
+					_isTabDown		= false;
+					break;
+			}
+		}
+		
+		
+		private var focusItemName:String	= "";
+		
+		private function onFocusChange(fe:FocusEvent):void{
+			if(fe.target.name	== focusItemName){
+				//call js and focus next item
+				var delegate:String = _model.jsDelegate;
+				var fullExpression:String = delegate + ".focusItem";
+				
+				if(_model.externalInterfaceEnable && _isTabDown && !_isShiftDown)
+				{
+					ExternalInterface.call(fullExpression, loaderInfo.parameters.nextBrowseItem);
+				}else if(_model.externalInterfaceEnable && _isTabDown && _isShiftDown){
+					ExternalInterface.call(fullExpression, loaderInfo.parameters.prevBrowseItem);
+				}
+				focusItemName	= "";
+			}else{
+				focusItemName	= fe.target.name;		
+			}
+
 		}
 		
 		public function dispatchActionEvent(eventName:String, args:Array):void
@@ -47,16 +109,23 @@ package {
 			trace('dispatchEvent: ' + event.type);
 		}
 
+		private var ap:AccessibilityProperties 	= new AccessibilityProperties();
 		private function init():void
 		{
-			Security.allowDomain("*");
+			ap.name						= loaderInfo.parameters.browseBtnName || "Browse File";
+				
+			accessibilityProperties			= ap;
+			
 			drawFakeBg();
+
 			if(stage)
 				addedToSatgeHandler();
 			else
 				addEventListener(Event.ADDED_TO_STAGE, addedToSatgeHandler);
+			
 		}
 
+		
 		private function addedToSatgeHandler(addedToStageEvent:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, addedToSatgeHandler);
@@ -77,21 +146,34 @@ package {
 		public function drawFakeBg(hitAreaWidth : Number = 1024, hitAreaHeight : Number = 1024):void
 		{
 			_hitArea.graphics.clear();
-		    _hitArea.graphics.beginFill(0xFF0000, 0);
+		    _hitArea.graphics.beginFill(0x0000FF, 0);
 		    _hitArea.graphics.drawRect(0, 0, hitAreaWidth, hitAreaHeight);
 		    _hitArea.graphics.endFill();
 		    _hitArea.x = 0;
 		    _hitArea.y = 0;
 		    _hitArea.width = hitAreaWidth;
 		    _hitArea.height = hitAreaHeight;
+			_hitArea.accessibilityProperties	= ap;
+			_hitArea.name	= "hitArea";
+			_hitArea.focusRect	= true;
 		    _hitArea.buttonMode = true;
 		    _hitArea.useHandCursor = true;
+			if(loaderInfo.parameters.browseImgSrc){
+				var loader:Loader	= new Loader();
+					loader.contentLoaderInfo.addEventListener(Event.COMPLETE,onImgLoadComplete,false,0,true);
+					loader.load(new URLRequest(loaderInfo.parameters.browseImgSrc));
+			}
 		    
 		    if(!this.contains(_hitArea))
 		   		addChild(_hitArea);
 
 		}
-		private function clickHandler(clickEvent:MouseEvent):void
+		
+		private function onImgLoadComplete(e:Event):void{
+			_hitArea.addChild(e.target.content);
+		}
+		
+		private function clickHandler(clickEvent:MouseEvent=null):void
 		{
 			if (_model.state == KUploadStates.READY)
 			{
@@ -224,11 +306,12 @@ package {
 
 		}
 
+		
 		private function addCallbacks():void
 		{
 			var model:KUploadModelLocator = KUploadModelLocator.getInstance();
 			if(model.externalInterfaceEnable)
-			{
+{
 				ExternalInterface.addCallback("upload", 	upload);
 				ExternalInterface.addCallback("addEntries", addEntries);
 				ExternalInterface.addCallback("setMediaType", setMediaType);
