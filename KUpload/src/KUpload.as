@@ -37,7 +37,7 @@ package {
 
 	public class KUpload extends Sprite {
 
-		public static const VERSION:String = "v1.2.9";
+		public static const VERSION:String = "v1.2.10";
 
 		private var _model:KUploadModelLocator = KUploadModelLocator.getInstance();
 		private var _hitArea:MovieClip = new MovieClip();
