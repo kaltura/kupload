@@ -99,6 +99,14 @@ package com.kaltura.upload.commands
 				trace('validate selected file(s)');
 				var validateLimitationsCommand:ValidateLimitationsCommand = new ValidateLimitationsCommand();
 				validateLimitationsCommand.execute();
+				if (model.error == KUploadErrorEvent.FILE_SIZE_EXCEEDS ||
+					model.error == KUploadErrorEvent.TOTAL_SIZE_EXCEEDS ||
+					model.error == KUploadErrorEvent.NUM_FILES_EXCEEDS)
+				{
+					//Error - do not continue to next phase 
+					model.files = [];
+					return;
+				}
 			}
 			trace('notify upload event with selected file(s)');
 			var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.SELECT);

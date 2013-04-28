@@ -4,6 +4,7 @@ package com.kaltura.upload.events
 
 	public class KUploadEvent extends Event
 	{
+		public static const ERROR:String = "error";
 		public static const READY:String = "ready";
 		public static const SELECT:String = "select";
 		public static const SINGLE_UPLOAD_COMPLETE:String = "singleUploadComplete";

@@ -47,42 +47,30 @@ var requiredRevision = ${version_revision};
 	var app;
 	var delegate = {};
 
-document.onkeydown	= key_event;
-var prevKey	= "";
-function key_event(evt){
-	if(typeof(evt) == "undefined")
-		evt	= event;
-	
-	if(prevKey == "18" && evt.keyCode=="66"){
-		app.openBrowse();
-		prevKey = "";
-	}else{
-		prevKey	= evt.keyCode;
-	}
-}
-
-
 	//KUploader callbacks
 	delegate.readyHandler = function()
 	{
 		app = document.getElementById("uploader");
 	}
+	delegate.errorHandler = function(args)
+	{
+		log("errorHandler : "+args);
+	}
 
 	delegate.selectHandler = function()
-	{
-		alert("selectHandler()");
-		console.log(app.getTotalSize());
+	{ 
+		log("selectHandler. Total size: "+app.getTotalSize());
 	}
 
 	delegate.singleUploadCompleteHandler = function(args)
 	{
-		console.log("singleUploadCompleteHandler", args[0].title);
+		log("singleUploadCompleteHandler: >> " +  args[0].title);
 	}
 
 	delegate.allUploadsCompleteHandler = function()
 	{
-		alert("allUploadsCompleteHandler");
 		//app.addEntries();
+		log("allUploadsCompleteHandler");
 	}
 
 	delegate.entriesAddedHandler = function(entries)
@@ -90,12 +78,11 @@ function key_event(evt){
 		var addedEntries = "";
 		for (var i=0; i<entries.length; i++)
 			addedEntries += entries[i].entryId + ",";
-		alert("added entries: " + addedEntries);
 	}
 
 	delegate.progressHandler = function(args)
 	{
-		console.log(args[2].title + ": " + args[0] + " / " + args[1]);
+		//log(args[2].title + ": " + args[0] + " / " + args[1]);
 	}
 
 	delegate.uiConfErrorHandler = function()
@@ -130,7 +117,7 @@ function key_event(evt){
 		var filesList = "";
 		for (var i=0; i<files.length; i++)
 			filesList += files[i] + ",";
-		console.log("got files : " + filesList);
+		log("got files : " + filesList);
 	}
 
 	function addEntries()
@@ -164,7 +151,6 @@ function key_event(evt){
 	function setMediaType()
 	{
 		var mediaType = mediaTypeInput.value;
-		alert(mediaType);
 		app.setMediaType(mediaType);
 	}
 
@@ -196,7 +182,7 @@ function key_event(evt){
 		var startIndex = parseInt(removeStartIndex.value);
 		var endIndex = parseInt(removeEndIndex.value);
 		app.removeFiles(startIndex, endIndex)
-		console.log(app.getTotalSize());
+		log(app.getTotalSize());
 	}
 
 	function setGroupId(value)
@@ -221,13 +207,12 @@ function key_event(evt){
 	
 	function getError() {
 		error = app.getError();
-		alert(error);
+		log(error);
 	}
 	
 	function getErrorIndices() {
 		indices = app.getSelectedErrorIndices();
-		console.log(indices);
-		alert(indices.join(","));
+		log(indices);
 	}
 
 
@@ -250,6 +235,13 @@ function key_event(evt){
 	var permissions;
 	var screenName;
 	var siteUrl;
+
+
+
+	function log(a)
+	{
+	document.getElementById("log").innerHTML+="\n >> "+a;
+	}
 
 	function onLoadHandler()
 	{
@@ -276,8 +268,6 @@ function key_event(evt){
 </head>
 
 <body scroll="no" onload=onLoadHandler()>
-<input type="button" value="Test" 		onclick="browse()">
-
 <div id="flashContainer">
 	<span>Upload</span>
 <script language="JavaScript" type="text/javascript">
@@ -326,36 +316,23 @@ jsDelegate=delegate"></object>
 	*/
 		//http://www.kaltura.com/kupload/ui_conf_id/11500
 			"src", "${swf}",
-			"width", "200",
+			"width", "50",
 			"height", "30",
 			"align", "middle",
 			"id", "uploader",
 			"quality", "high",
 			"wmode", "transparent",
 			"bgcolor", "${bgcolor}",
-			"flashvars",
-						"ks=N2YxOTcxNjY1NjMxOGIzZWVmNjJmZmRhYTM1NmMyNzkwODcwMDQ0Mnw2Mjk3MDI7NjI5NzAyOzEzMjM4ODAyOTg7MDsxMzIzNzkzODk4LjM5NDY7TWlyb3NsYXY7Ozs=" +
-					//	"&uid=micmic@mailinator.com" +
-						"&partnerId=629702" +
-					//	"&subPId=49591200" +
+			"flashvars",  
+						"ks=ODI3N2I4YjEyMzU0ZjBlOWIxOTllNTY2MTllMGUzMmM0OWM4ZWRhZXwyNzAxNzsyNzAxNzsxMzY3MjI2MDEzOzI7MTM2NzEzOTYxMy4zMzk1O19fQURNSU5fXzI2Njg3Ozs7" +
+						"&partnerId=27017" +
 						"&protocol=http://" +
 						"&host=www.kaltura.com" +
 						//"&uploadHost=http://kaldev.kaltura.com" +
 						"&entryId=-2" +
-						//"&conversionProfile=1747331" +
-						"&maxUploads=99999" +
-					//	"&maxFileSize=99999" +
-					//	"&maxTotalSize=9999999" +
-						"&uiConfId=6566561" +
+						"&uiConfId=13669512" +
 						"&jsDelegate=delegate" +
-					//	"&uploadHost=https://www.kaltura.com/index.php/partnerservices2/upload" +
-					//	"&uploadUrl=http://newkaldev.kaltura.dev/index.php/partnerservices2/upload" +
 						"&externalInterfaceDisabled=0" + // 1-disable 0-enable
-						"&conversionMapping=swf,avi,wmv,doc:55321;mp3,wav,ogg:44356" + // 1-disable 0-enable
-//						"&permissions=1" +
-//						"&groupId=dogs" +
-//						"&siteUrl=milly.com" +
-//						"&screenName=Milly" +
 						"",
 			"name", "${application}",
 			"allowScriptAccess","always",
@@ -366,14 +343,12 @@ jsDelegate=delegate"></object>
 		var alternateContent = 'Alternate HTML content should be placed here. '
 		+ 'This content requires the Adobe Flash Player. '
 		 + '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
-		document.write(alternateContent);  // insert non-flash content
+		document.write(alternateContent);  // insert non-flash content 
 	}
-document.getElementById("uploader").tabIndex	= "0";
-document.getElementById("uploader").focus();
 // -->
 </script>
 </div>
-<br/>
+
 
 	<form>
 		<input type="button" value="Browse" 		onclick="browse()">
@@ -438,6 +413,9 @@ document.getElementById("uploader").focus();
 		<input id="siteUrl" />
 		<input type="button" value="set site url" onClick="setSiteUrl(siteUrl.value)">
 	</form>
+	
+	<textarea id="log" rows="20" cols="80">
+	</textarea>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.kaltura.upload.commands
 {
 	import com.kaltura.upload.events.KUploadErrorEvent;
+	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileVO;
 
 	public class ValidateLimitationsCommand extends BaseUploadCommand
@@ -10,19 +11,30 @@ package com.kaltura.upload.commands
 			if (fileSizeExceeds())
 			{
 				model.error = KUploadErrorEvent.FILE_SIZE_EXCEEDS;
+				notifyErrorToShell();
 				return;
 			}
 			else if (totalSizeExceeds())
 			{
 				model.error = KUploadErrorEvent.TOTAL_SIZE_EXCEEDS;
-				return;
+				notifyErrorToShell();
+				return; 
 			}
 			else if (numFilesExceeds())
 			{
 				model.error = KUploadErrorEvent.NUM_FILES_EXCEEDS;
+				notifyErrorToShell();
 				return;
 			}
+			
 			model.error = null;
+		}
+		
+		private function notifyErrorToShell():void
+		{
+				//handle general validation error and notify the error type to the shell 
+				var notifyShell:NotifyShellCommand = new NotifyShellCommand(KUploadEvent.ERROR ,  [model.error] );
+				notifyShell.execute(); 
 		}
 
 		private function fileSizeExceeds():Boolean
