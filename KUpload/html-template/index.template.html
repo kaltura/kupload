@@ -55,6 +55,7 @@ var requiredRevision = ${version_revision};
 	delegate.errorHandler = function(args)
 	{
 		log("errorHandler : "+args);
+		alert("errorHandler : "+args+" Selected files will be removed, please re-select");
 	}
 
 	delegate.selectHandler = function()
@@ -76,8 +77,10 @@ var requiredRevision = ${version_revision};
 	delegate.entriesAddedHandler = function(entries)
 	{
 		var addedEntries = "";
-		for (var i=0; i<entries.length; i++)
+		for (var i=0; i<entries.length; i++){
+			log("entriesAddedHandler: "+ entries[i].entryId);
 			addedEntries += entries[i].entryId + ",";
+		}
 	}
 
 	delegate.progressHandler = function(args)
@@ -330,7 +333,7 @@ jsDelegate=delegate"></object>
 						"&host=www.kaltura.com" +
 						//"&uploadHost=http://kaldev.kaltura.com" +
 						"&entryId=-2" +
-						"&uiConfId=13669512" +
+						"&uiConfId=13669512" + 
 						"&jsDelegate=delegate" +
 						"&externalInterfaceDisabled=0" + // 1-disable 0-enable
 						"",
