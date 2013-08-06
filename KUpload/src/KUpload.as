@@ -18,6 +18,8 @@ package {
 	import com.kaltura.upload.vo.FileVO;
 	import com.swffocus.SWFFocus;
 	
+	import fl.controls.Button;
+	
 	import flash.accessibility.AccessibilityProperties;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
@@ -31,19 +33,21 @@ package {
 	import flash.external.ExternalInterface;
 	import flash.net.URLRequest;
 	import flash.system.Security;
+	import flash.text.TextField;
+	import flash.text.TextFieldType;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.setTimeout;
 
 	public class KUpload extends Sprite {
 
-		public static const VERSION:String = "v1.2.10";
+		public static const VERSION:String = "v1.2.10_accesible";
 
 		private var _model:KUploadModelLocator = KUploadModelLocator.getInstance();
 		private var _hitArea:MovieClip = new MovieClip();
 
 
-		public function KUpload() {
+		public function KUpload() { 
 			Security.allowDomain("*");
 			mouseChildren = true;
 			SWFFocus.init(this.stage);
@@ -55,16 +59,12 @@ package {
 		}
 
 		private var _isShiftDown:Boolean = false;
-		private var _isTabDown:Boolean = false;
 
 
 		private function onKeyDown(e:KeyboardEvent):void {
 			switch (String(e.keyCode)) {
 				case "16": //shift
 					_isShiftDown = true;
-					break;
-				case "9": //tab
-					_isTabDown = true;
 					break;
 			}
 		}
@@ -76,12 +76,16 @@ package {
 					_isShiftDown = false;
 					break;
 				case "9": //tab
-					_isTabDown = false;
-					break;
+					if(_isShiftDown)
+				{
+						trace("shiftTab" );
+						setTimeout(function(){ExternalInterface.call('flashShiftTabOut');},79);
+					}
+						
 			}
 		}
 
-
+/*
 		private var _focusItemName:String = "";
 
 
@@ -103,7 +107,7 @@ package {
 				_focusItemName = fe.target.name;
 			}
 
-		}
+		}*/
 
 
 		public function dispatchActionEvent(eventName:String, args:Array):void {
@@ -129,8 +133,50 @@ package {
 
 		}
 
+		
+		private var focusInFlag:Boolean;
+		
+		private function onFE(focusEvent:FocusEvent):void {
+			if(focusInFlag)
+			{
+				trace(focusEvent.type , " "  , focusEvent.target);
+				btn.setFocus();
+			}
+			focusInFlag = true;
+		}
 
+		private var btn:Button = new Button();
 		private function addedToSatgeHandler(addedToStageEvent:Event = null):void {
+			
+			btn.focusEnabled = true;
+			var accessProps:AccessibilityProperties = new AccessibilityProperties();
+			accessProps.name = "Browse your PC to upload a file";
+			btn.accessibilityProperties = accessProps;
+			btn.width = 0;
+			btn.height = 0;
+			btn.label = "";
+			btn.addEventListener(MouseEvent.CLICK, clickHandler);
+			addChild(btn);
+			
+/*			btnOut.focusEnabled = true;
+			btnOut.tabIndex = 10;
+			var accessProps1:AccessibilityProperties = new AccessibilityProperties();
+			accessProps1.name = "get out of the uploader";
+			btnOut.accessibilityProperties = accessProps1;
+			btnOut.width = 10;
+			btnOut.height = 10;
+			btnOut.x = 10;
+			btnOut.label = "q";
+			//btnOut.addEventListener(MouseEvent.CLICK, clickHandler);
+			addChild(btnOut);*/
+			
+			
+			stage.addEventListener(FocusEvent.FOCUS_IN , onFE);
+			//stage.addEventListener(FocusEvent.FOCUS_OUT , onFE);
+/*
+			stage.addEventListener(FocusEvent.KEY_FOCUS_CHANGE , onFE);
+			stage.addEventListener(FocusEvent.MOUSE_FOCUS_CHANGE , onFE);*/
+			
 			removeEventListener(Event.ADDED_TO_STAGE, addedToSatgeHandler);
 
 			stage.align = StageAlign.TOP_LEFT;
@@ -224,6 +270,7 @@ package {
 
 
 		public function upload():void {
+			
 			var uploadCommand:UploadCommand = new UploadCommand();
 			setTimeout(function():void {
 				uploadCommand.execute()
@@ -326,6 +373,7 @@ package {
 			var model:KUploadModelLocator = KUploadModelLocator.getInstance();
 			if (model.externalInterfaceEnable) {
 				ExternalInterface.addCallback("upload", upload);
+				ExternalInterface.addCallback("browse", browse); 
 				ExternalInterface.addCallback("addEntries", addEntries);
 				ExternalInterface.addCallback("setMediaType", setMediaType);
 				ExternalInterface.addCallback("setTags", setTags);

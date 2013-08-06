@@ -201,9 +201,12 @@ package com.swffocus
 			var a = e.target;
 			var b = e.relatedObject;
 			if (wrapOccurred(a, b, e.shiftKey)) {
-				eTrace("wrap occurred! " + _idNext)
+				eTrace("wrap occurred! " + _idNext);
 				e.preventDefault();
 				eCall("function(){var elem = document.getElementById('"+ (e.shiftKey ? _idPrev : _idNext) +"'); if (elem) elem.focus();}");
+
+				if(_idNext == "afterswfanchor0")
+					setTimeout(function(){eCall("flashTabOut");},97);
 			}
 		}
 		
