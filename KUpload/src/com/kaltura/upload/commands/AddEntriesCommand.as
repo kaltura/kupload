@@ -85,10 +85,10 @@ package com.kaltura.upload.commands
 			var lowered:String = fileVo.extension.toLowerCase();
 			if (model.conversionMapping != null && model.conversionMapping[lowered] != null){
 				kalturaBaseEntry.conversionQuality = model.conversionMapping[lowered];
-				kalturaBaseEntry.conversionProfileId = model.conversionMapping[lowered];
+				kalturaBaseEntry.conversionProfileId = parseInt(model.conversionMapping[lowered]);
 			} else {
 				kalturaBaseEntry.conversionQuality = model.conversionProfile;
-				kalturaBaseEntry.conversionProfileId = model.conversionProfile;
+				kalturaBaseEntry.conversionProfileId = parseInt(model.conversionProfile);
 			}
 			
 			kalturaBaseEntry.userId = model.context.userId;
