@@ -1,5 +1,6 @@
 package com.kaltura.upload.commands
 {
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.vo.FileVO;
 
 	public class SetTitleCommand extends BaseUploadCommand
@@ -21,7 +22,7 @@ package com.kaltura.upload.commands
 			{
 				var fileVo:FileVO = model.files[i];
 				if (!fileVo)
-					throw new Error("Can not set title, file with index " + i + " does not exist");
+					throw new KsuError("Can not set title, file with index " + i + " does not exist", KsuError.MISSING_FILE);
 				fileVo.title = _title;
 			}
 		}

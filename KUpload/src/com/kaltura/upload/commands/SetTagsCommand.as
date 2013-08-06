@@ -1,7 +1,9 @@
 package com.kaltura.upload.commands
 {
-	import flash.sampler.startSampling;
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.vo.FileVO;
+	
+	import flash.sampler.startSampling;
 
 	public class SetTagsCommand extends BaseUploadCommand
 	{
@@ -22,7 +24,7 @@ package com.kaltura.upload.commands
 			{
 				var fileVo:FileVO = model.files[i];
 				if (!fileVo)
-					throw new Error("Can not set tags, file with index " + i + " does not exist");
+					throw new KsuError("Can not set tags, file with index " + i + " does not exist", KsuError.MISSING_FILE);
 				fileVo.tags = _tags;
 			}
 		}

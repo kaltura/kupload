@@ -1,5 +1,6 @@
 package com.kaltura.upload.commands
 {
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.vo.FileFilterVO;
 
 	public class SetMediaTypeCommand extends BaseUploadCommand
@@ -19,30 +20,12 @@ package com.kaltura.upload.commands
 			{
 				model.activeFileFilterVO = fileFilterVo;
 				model.selectedFileFilterArr = new Array(model.activeFileFilterVO);
-				//setFiltersOrder();
 			}
 			else
 			{
-				throw new Error("No such file filter id: " + _mediaType);
+				throw new KsuError("No such file filter id: " + _mediaType, KsuError.MISSING_FILTER_FOR_MEDIA_TYPE);
 			}
 		}
-/*		
-		//deprecated
-		private function setFiltersOrder():void
-		{
-			var fileFilters:Array = new Array();
-			var fileFilterVo:FileFilterVO = model.activeFileFilterVO;
-			for each(var ffVo:FileFilterVO in model.fileFiltersArr)
-			{
-				if(ffVo.mediaType == fileFilterVo.mediaType)
-				{
-					fileFilters.push(ffVo);
-					break;
-				}
-			}
-			
-			model.selectedFileFilterArr = fileFilters;
-		}*/
 
 	}
 }

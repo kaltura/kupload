@@ -5,6 +5,7 @@ package com.kaltura.upload.commands
 	import com.kaltura.events.KalturaEvent;
 	import com.kaltura.net.PolledFileReference;
 	import com.kaltura.net.TemplateURLVariables;
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileVO;
@@ -31,7 +32,7 @@ package com.kaltura.upload.commands
 				model.error == KUploadErrorEvent.TOTAL_SIZE_EXCEEDS ||
 				model.error == KUploadErrorEvent.NUM_FILES_EXCEEDS)
 			{
-				throw new Error("Cannot upload, limitations exceeded:" + model.error + ". Please check for errors");
+				throw new KsuError("Cannot upload, limitations exceeded:" + model.error + ". Please check for errors", KsuError.LIMITATIONS_EXCEEDED);
 				return;
 			}
 			trace('upload selected file(s)');

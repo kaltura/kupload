@@ -9,6 +9,7 @@ package com.kaltura.upload.commands
 	import com.kaltura.types.KalturaMediaType;
 	import com.kaltura.types.KalturaNotificationType;
 	import com.kaltura.upload.business.PartnerNotificationVO;
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileVO;
@@ -29,7 +30,7 @@ package com.kaltura.upload.commands
 		{
 			if (model.error)
 			{
-				throw new Error("Cannot add entries, some uploads failed. Either re-upload or remove the files");
+				throw new KsuError("Cannot add entries, some uploads failed. Either re-upload or remove the files", KsuError.CANNOT_ADD_ENTRIES);
 				return;
 			}
 			var mr:MultiRequest = new MultiRequest();

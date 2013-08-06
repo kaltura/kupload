@@ -5,12 +5,13 @@ package com.kaltura.upload.commands {
 	import com.kaltura.events.KalturaEvent;
 	import com.kaltura.net.TemplateURLVariables;
 	import com.kaltura.upload.enums.KUploadStates;
+	import com.kaltura.upload.errors.KsuError;
 	import com.kaltura.upload.events.KUploadErrorEvent;
 	import com.kaltura.upload.events.KUploadEvent;
 	import com.kaltura.upload.vo.FileFilterVO;
 	import com.kaltura.utils.KConfigUtil;
 	import com.kaltura.vo.KalturaUiConf;
-
+	
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
@@ -259,7 +260,7 @@ package com.kaltura.upload.commands {
 		private function prepareWarningError(message:String):void {
 			function warningErrorTimerHandler(evt:TimerEvent):void {
 				var timer:Timer = evt.target as Timer
-				throw new Error("Warning: " + message);
+				throw new KsuError("Warning: " + message, KsuError.WARNING);
 			}
 			var timer:Timer = new Timer(0, 1);
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, warningErrorTimerHandler);
