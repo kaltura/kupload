@@ -20,21 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 @ignore
 */
-package com.kaltura.net
-{
-	import flash.events.DataEvent;
+package com.kaltura.net {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.ProgressEvent;
 	import flash.net.FileReference;
 
+	[Event(name = "cancel", type = "flash.events.Event")]
+
 	/**
 	* A fileReference object wrapper that holds its bytesLoaded and bytesTotal as members.
 	* This is useful when a recycled item renderer needs to know the loading state.
 	*/
-	[Event(name="cancel", type="flash.events.Event")]
-	public class PolledFileReference extends EventDispatcher
-	{
+	public class PolledFileReference extends EventDispatcher {
 		public var fileReference:FileReference;
 
 		/**
@@ -49,36 +47,42 @@ package com.kaltura.net
 		public var bytesTotal:uint = 0;
 
 
-		public function PolledFileReference(fileReference:FileReference):void
-		{
-			bytesTotal = fileReference.size;
+		public function PolledFileReference(fileReference:FileReference):void {
+			try {
+				bytesTotal = fileReference.size;
+			}
+			catch (e:Error) {
+				// if the file is larger than 4G we wikll get here. this value will be processed in ValidateLimitationsCommand 
+				bytesTotal = 0;
+			}
 			this.fileReference = fileReference
 			this.fileReference.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			this.fileReference.addEventListener(Event.OPEN, onFileReferenceOpen);
 			this.fileReference.addEventListener(Event.COMPLETE, onFileReferenceComplete);
 		}
 
-		public function cancel():void
-		{
+
+		public function cancel():void {
 			this.fileReference.cancel();
 			bytesLoaded = 0;
 			dispatchEvent(new Event(Event.CANCEL));
 		}
-		private function onProgress(evtProgress:ProgressEvent):void
-		{
+
+
+		private function onProgress(evtProgress:ProgressEvent):void {
 			bytesLoaded = evtProgress.bytesLoaded;
 			bytesTotal = evtProgress.bytesTotal;
 			dispatchEvent(evtProgress.clone());
 			trace("FileReference progress: " + bytesLoaded + " / " + bytesTotal + " file name: " + fileReference.name);
 		}
 
-		private function onFileReferenceOpen(evtOpen:Event):void
-		{
+
+		private function onFileReferenceOpen(evtOpen:Event):void {
 			hasBeenOpened = true;
 		}
 
-		private function onFileReferenceComplete(evtComplete:Event):void
-		{
+
+		private function onFileReferenceComplete(evtComplete:Event):void {
 			bytesLoaded = fileReference.size;
 			bytesTotal = fileReference.size;
 			hasBeenOpened = true;

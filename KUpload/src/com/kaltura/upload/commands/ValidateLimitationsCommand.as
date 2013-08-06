@@ -44,7 +44,8 @@ package com.kaltura.upload.commands
 			files.forEach(
 				function(fileVo:FileVO, i:int, list:Array):void
 				{
-					if (fileVo.bytesTotal > model.maxFileSize * 1e6)
+					// if file is larger than 4G, fileVo.bytesTotal = 0  
+					if (fileVo.bytesTotal == 0 || fileVo.bytesTotal > model.maxFileSize * 1e6)
 						exceedingFiles.push(i);
 				}
 			);

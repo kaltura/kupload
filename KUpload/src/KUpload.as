@@ -182,7 +182,6 @@ package {
 		 * browse files 
 		 */
 		public function browse():void {
-			trace("browse()");
 			var browseCommand:BrowseCommand = new BrowseCommand();
 			browseCommand.execute();
 		}
