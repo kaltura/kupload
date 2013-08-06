@@ -33,21 +33,19 @@ package {
 	import flash.external.ExternalInterface;
 	import flash.net.URLRequest;
 	import flash.system.Security;
-	import flash.text.TextField;
-	import flash.text.TextFieldType;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.setTimeout;
 
 	public class KUpload extends Sprite {
 
-		public static const VERSION:String = "v1.2.10_accesible";
+		public static const VERSION:String = "v1.2.11";
 
 		private var _model:KUploadModelLocator = KUploadModelLocator.getInstance();
-		private var _hitArea:MovieClip = new MovieClip();
+		private var _hitArea:MovieClip;
 
 
-		public function KUpload() { 
+		public function KUpload() {
 			Security.allowDomain("*");
 			mouseChildren = true;
 			SWFFocus.init(this.stage);
@@ -57,127 +55,65 @@ package {
 			addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			init();
 		}
+		
 
-		private var _isShiftDown:Boolean = false;
-
-
-		private function onKeyDown(e:KeyboardEvent):void {
-			switch (String(e.keyCode)) {
-				case "16": //shift
-					_isShiftDown = true;
-					break;
-			}
-		}
-
-
-		private function onKeyUp(e:KeyboardEvent):void {
-			switch (String(e.keyCode)) {
-				case "16": //shift
-					_isShiftDown = false;
-					break;
-				case "9": //tab
-					if(_isShiftDown)
-				{
-						trace("shiftTab" );
-						setTimeout(function(){ExternalInterface.call('flashShiftTabOut');},79);
-					}
-						
-			}
-		}
-
-/*
-		private var _focusItemName:String = "";
-
-
-		private function onFocusChange(fe:FocusEvent):void {
-			if (fe.target.name == _focusItemName) {
-				//call js and focus next item
-				var delegate:String = _model.jsDelegate;
-				var fullExpression:String = delegate + ".focusItem";
-
-				if (_model.externalInterfaceEnable && _isTabDown && !_isShiftDown) {
-					ExternalInterface.call(fullExpression, loaderInfo.parameters.nextBrowseItem);
-				}
-				else if (_model.externalInterfaceEnable && _isTabDown && _isShiftDown) {
-					ExternalInterface.call(fullExpression, loaderInfo.parameters.prevBrowseItem);
-				}
-				_focusItemName = "";
-			}
-			else {
-				_focusItemName = fe.target.name;
-			}
-
-		}*/
-
-
+		/**
+		 * notify any listeners something happened 
+		 * @param eventName	xxxHandler
+		 * @param args	additional arguments
+		 * 
+		 */		
 		public function dispatchActionEvent(eventName:String, args:Array):void {
 			var event:ActionEvent = new ActionEvent(eventName, args);
 			dispatchEvent(event);
 			trace('dispatchEvent: ' + event.type);
 		}
 
-		private var ap:AccessibilityProperties = new AccessibilityProperties();
+		private var _ap:AccessibilityProperties = new AccessibilityProperties();
 
 
 		private function init():void {
-			ap.name = loaderInfo.parameters.browseBtnName || "Browse File";
-
-			accessibilityProperties = ap;
-
+			_ap.name = loaderInfo.parameters.browseBtnName || "Browse File";
+			accessibilityProperties = _ap;
 			drawFakeBg();
 
 			if (stage)
-				addedToSatgeHandler();
+				addedToStageHandler();
 			else
-				addEventListener(Event.ADDED_TO_STAGE, addedToSatgeHandler);
+				addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 
 		}
 
-		
-		private var focusInFlag:Boolean;
-		
+
+		private var _focusInFlag:Boolean;
+
+
 		private function onFE(focusEvent:FocusEvent):void {
-			if(focusInFlag)
-			{
-				trace(focusEvent.type , " "  , focusEvent.target);
-				btn.setFocus();
+			if (_focusInFlag) {
+				trace(focusEvent.type, " ", focusEvent.target);
+				_btn.setFocus();
 			}
-			focusInFlag = true;
+			_focusInFlag = true;
 		}
 
-		private var btn:Button = new Button();
-		private function addedToSatgeHandler(addedToStageEvent:Event = null):void {
-			
-			btn.focusEnabled = true;
+		
+		private var _btn:Button = new Button();
+
+
+		private function addedToStageHandler(addedToStageEvent:Event = null):void {
+
+			_btn.focusEnabled = true;
 			var accessProps:AccessibilityProperties = new AccessibilityProperties();
 			accessProps.name = "Browse your PC to upload a file";
-			btn.accessibilityProperties = accessProps;
-			btn.width = 0;
-			btn.height = 0;
-			btn.label = "";
-			btn.addEventListener(MouseEvent.CLICK, clickHandler);
-			addChild(btn);
-			
-/*			btnOut.focusEnabled = true;
-			btnOut.tabIndex = 10;
-			var accessProps1:AccessibilityProperties = new AccessibilityProperties();
-			accessProps1.name = "get out of the uploader";
-			btnOut.accessibilityProperties = accessProps1;
-			btnOut.width = 10;
-			btnOut.height = 10;
-			btnOut.x = 10;
-			btnOut.label = "q";
-			//btnOut.addEventListener(MouseEvent.CLICK, clickHandler);
-			addChild(btnOut);*/
-			
-			
-			stage.addEventListener(FocusEvent.FOCUS_IN , onFE);
-			//stage.addEventListener(FocusEvent.FOCUS_OUT , onFE);
-/*
-			stage.addEventListener(FocusEvent.KEY_FOCUS_CHANGE , onFE);
-			stage.addEventListener(FocusEvent.MOUSE_FOCUS_CHANGE , onFE);*/
-			
-			removeEventListener(Event.ADDED_TO_STAGE, addedToSatgeHandler);
+			_btn.accessibilityProperties = accessProps;
+			_btn.width = 0;
+			_btn.height = 0;
+			_btn.label = "";
+			_btn.addEventListener(MouseEvent.CLICK, clickHandler);
+			addChild(_btn);
+
+			stage.addEventListener(FocusEvent.FOCUS_IN, onFE);
+			removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -193,7 +129,16 @@ package {
 		}
 
 
+		/**
+		 * create the area where user can click 
+		 * @param hitAreaWidth
+		 * @param hitAreaHeight
+		 * 
+		 */
 		public function drawFakeBg(hitAreaWidth:Number = 1024, hitAreaHeight:Number = 1024):void {
+			if (!_hitArea) {
+				_hitArea = new MovieClip();
+			}
 			_hitArea.graphics.clear();
 			_hitArea.graphics.beginFill(0x0000FF, 0);
 			_hitArea.graphics.drawRect(0, 0, hitAreaWidth, hitAreaHeight);
@@ -202,7 +147,7 @@ package {
 			_hitArea.y = 0;
 			_hitArea.width = hitAreaWidth;
 			_hitArea.height = hitAreaHeight;
-			_hitArea.accessibilityProperties = ap;
+			_hitArea.accessibilityProperties = _ap;
 			_hitArea.name = "hitArea";
 			_hitArea.focusRect = true;
 			_hitArea.buttonMode = true;
@@ -213,9 +158,7 @@ package {
 				loader.load(new URLRequest(loaderInfo.parameters.browseImgSrc));
 			}
 
-			if (!this.contains(_hitArea))
-				addChild(_hitArea);
-
+			addChild(_hitArea);
 		}
 
 
@@ -230,8 +173,14 @@ package {
 			}
 		}
 
-
-		//API functions
+		
+		/* *****************************************************
+		* API FUNCTIONS
+		* *****************************************************/
+		
+		/**
+		 * browse files 
+		 */
 		public function browse():void {
 			trace("browse()");
 			var browseCommand:BrowseCommand = new BrowseCommand();
@@ -241,7 +190,8 @@ package {
 
 		public function addTags(tags:Array, startIndex:int, endIndex:int):void {
 			var addTagsCommand:AddTagsCommand = new AddTagsCommand(tags, startIndex, endIndex);
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				addTagsCommand.execute()
 			}, 0);
 		}
@@ -249,7 +199,8 @@ package {
 
 		public function setTags(tags:Array, startIndex:int, endIndex:int):void {
 			var setTagsCommand:SetTagsCommand = new SetTagsCommand(tags, startIndex, endIndex);
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				setTagsCommand.execute()
 			}, 0);
 		}
@@ -257,7 +208,8 @@ package {
 
 		public function setTitle(title:String, startIndex:int, endIndex:int):void {
 			var setTitleCommand:SetTitleCommand = new SetTitleCommand(title, startIndex, endIndex);
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				setTitleCommand.execute()
 			}, 0);
 		}
@@ -270,9 +222,9 @@ package {
 
 
 		public function upload():void {
-			
 			var uploadCommand:UploadCommand = new UploadCommand();
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				uploadCommand.execute()
 			}, 0);
 		}
@@ -280,7 +232,8 @@ package {
 
 		public function setMediaType(mediaType:String):void {
 			var setMediaTypeCommand:SetMediaTypeCommand = new SetMediaTypeCommand(mediaType);
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				setMediaTypeCommand.execute()
 			}, 0);
 		}
@@ -288,7 +241,8 @@ package {
 
 		public function addEntries():void {
 			var addEntries:AddEntriesCommand = new AddEntriesCommand();
-			setTimeout(function():void {
+			setTimeout(function():void
+			{
 				addEntries.execute()
 			}, 0);
 		}
@@ -373,7 +327,7 @@ package {
 			var model:KUploadModelLocator = KUploadModelLocator.getInstance();
 			if (model.externalInterfaceEnable) {
 				ExternalInterface.addCallback("upload", upload);
-				ExternalInterface.addCallback("browse", browse); 
+				ExternalInterface.addCallback("browse", browse);
 				ExternalInterface.addCallback("addEntries", addEntries);
 				ExternalInterface.addCallback("setMediaType", setMediaType);
 				ExternalInterface.addCallback("setTags", setTags);
@@ -394,6 +348,44 @@ package {
 				ExternalInterface.addCallback("setPermissions", setPermissions);
 				ExternalInterface.addCallback("setSiteUrl", setSiteUrl);
 				ExternalInterface.addCallback("setScreenName", setScreenName);
+			}
+		}
+		
+		/* *****************************************************
+		* ACCESSIBILITY RELATED - TAB IN-OUT
+		* *****************************************************/
+		
+		
+		/**
+		 * indicates shift button is down 
+		 */
+		private var _isShiftDown:Boolean = false;
+		
+		
+		private function onKeyDown(e:KeyboardEvent):void {
+			switch (String(e.keyCode)) {
+				case "16": //shift
+					_isShiftDown = true;
+					break;
+			}
+		}
+		
+		
+		private function onKeyUp(e:KeyboardEvent):void {
+			switch (String(e.keyCode)) {
+				case "16": //shift
+					_isShiftDown = false;
+					break;
+				case "9": //tab
+					if (_isShiftDown) {
+						setTimeout(function():void
+						{
+							ExternalInterface.call('flashShiftTabOut');
+						}, 79);
+					}
+					break;
+				default:
+					break;
 			}
 		}
 	}

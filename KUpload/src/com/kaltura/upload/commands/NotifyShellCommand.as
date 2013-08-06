@@ -23,12 +23,7 @@ package com.kaltura.upload.commands
 			var callbackName:String = _eventName + "Handler";
 			var fullExpression:String = delegate + "." + callbackName;
 			trace('execute NotifyShellCommand with event: ' + _eventName);
-			if(model.externalInterfaceEnable)
-			{
-				/*var jsArgs:Array = _args ? new Array() : null;
-				for each(var arg:Object in _args)
-					jsArgs.push(arg is FileVO ? (arg as FileVO).file.fileReference : arg);*/
-					
+			if(model.externalInterfaceEnable) {
 				ExternalInterface.call(fullExpression, _args);
 			}
 			KUploadController.getInstance().getApp().dispatchActionEvent(fullExpression, _args);

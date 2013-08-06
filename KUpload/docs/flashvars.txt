@@ -1,0 +1,26 @@
+
+
+ks, A unique string that represents the user. Valid for 24 hours.
+uid, The internal identifier of the end user 
+partnerId, The identifier of the partner 
+entryId, The kshow to which the new entries will be added 
+host, The host of the application 
+jsDelegate, A JavaScript object that contains callback functions 
+externalInterfaceDisabled, Determines whether external interface functions are called 
+Groupid, The identifier of the group 
+partnerdata, Custom data, passed from the partner, to be attached to each entry that is added 
+uiconfid/kuploadUiconfId, The uiConf that will be used 
+siteUrl, The URL of the credits site 
+screenName, Name of the Credits screen 
+quickedit, Boolean flag. Indicates whether the contributed media files are added automatically to the end of the roughcut. The default value is 1. 
+maxFileSize, Maximum size of a file 
+maxTotalSize, Maximum size of all files 
+maxUploads, Maximum number of uploads 
+conversionProfile, The identifier of the conversion profile
+conversionMapping, "fileExt1,fileExt2:conversionProfileId1;fileExt:conversionProfileId2"
+browseImgSrc, URL of an image to be used as hit area
+permissions, (int) not used
+uploadUrl, alternative upload url (work without KAltura API)
+
+
+
