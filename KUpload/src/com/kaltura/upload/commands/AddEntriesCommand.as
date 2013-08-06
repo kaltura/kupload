@@ -87,7 +87,8 @@ package com.kaltura.upload.commands
 			if (model.conversionMapping != null && model.conversionMapping[lowered] != null){
 				kalturaBaseEntry.conversionQuality = model.conversionMapping[lowered];
 				kalturaBaseEntry.conversionProfileId = parseInt(model.conversionMapping[lowered]);
-			} else {
+			} 
+			else if (model.conversionProfile) {
 				kalturaBaseEntry.conversionQuality = model.conversionProfile;
 				kalturaBaseEntry.conversionProfileId = parseInt(model.conversionProfile);
 			}
