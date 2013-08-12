@@ -33,7 +33,13 @@ package com.kaltura.upload.vo
 			removeFileListeners();
 
 			_file = value;
-			bytesTotal = _file.fileReference.size;
+			try {
+				bytesTotal = _file.fileReference.size;
+			}
+			catch (e:Error) {
+				// if the file is larger than 4G we wikll get here. this value will be processed in ValidateLimitationsCommand 
+				bytesTotal = 0;
+			}
 
 			addFileListeners();
 		}
