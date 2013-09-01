@@ -13,8 +13,8 @@ uiconfid/kuploadUiconfId, The uiConf that will be used
 siteUrl, The URL of the credits site 
 screenName, Name of the Credits screen 
 quickedit, Boolean flag. Indicates whether the contributed media files are added automatically to the end of the roughcut. The default value is 1. 
-maxFileSize, Maximum size of a file 
-maxTotalSize, Maximum size of all files 
+maxFileSize, Maximum size of a file (in KB)
+maxTotalSize, Maximum size of all files (in KB)
 maxUploads, Maximum number of uploads 
 conversionProfile, The identifier of the conversion profile
 conversionMapping, "fileExt1,fileExt2:conversionProfileId1;fileExt:conversionProfileId2"
