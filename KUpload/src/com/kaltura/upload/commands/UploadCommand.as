@@ -23,6 +23,7 @@ package com.kaltura.upload.commands
 	public class UploadCommand extends BaseUploadCommand
 	{
 		private var _activeFile:FileVO;
+		private var _call:UploadTokenUpload;
 		private var _files:Array; /*of FileVO*/
 
 		override public function execute():void
@@ -79,18 +80,20 @@ package com.kaltura.upload.commands
 		private function uploadTokenAddHandler(event:KalturaEvent):void {
 			var tokenId:String = (event.data as KalturaUploadToken).id;
 			_activeFile.token = tokenId;
-			var uploadFile:UploadTokenUpload = new UploadTokenUpload(tokenId, _activeFile.file.fileReference);
+			_call = new UploadTokenUpload(tokenId, _activeFile.file.fileReference);
 			setupFileListeners();
 			//_activeFile.file.fileReference.addEventListener(ProgressEvent.PROGRESS, 					fileProgressHandler);
 			//uploadFile.addEventListener(KalturaEvent.COMPLETE, fileCompleteHandler);
 			//uploadFile.addEventListener(KalturaEvent.FAILED, onFileFailed);
 			
-			model.context.kc.post(uploadFile);
+			model.context.kc.post(_call);
 		}
 		
 		private function setupFileListeners():void
 		{
-			_activeFile.file.fileReference.addEventListener(Event.COMPLETE, 						fileCompleteHandler);
+			_call.addEventListener(KalturaEvent.COMPLETE, 											fileCompleteHandler);
+			_call.addEventListener(KalturaEvent.FAILED, 											onFileFailed);
+//			_activeFile.file.fileReference.addEventListener(Event.COMPLETE, 						fileCompleteHandler);
 			_activeFile.file.fileReference.addEventListener(IOErrorEvent.IO_ERROR, 					onFileFailed );
 			_activeFile.file.fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, 		onFileFailed);
 			_activeFile.file.fileReference.addEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
@@ -100,7 +103,9 @@ package com.kaltura.upload.commands
 		
 		private function removeFileListeners():void
 		{
-			_activeFile.file.fileReference.removeEventListener(Event.COMPLETE,						fileCompleteHandler);
+			_call.removeEventListener(KalturaEvent.COMPLETE, 										fileCompleteHandler);
+			_call.removeEventListener(KalturaEvent.FAILED, 											onFileFailed);
+//			_activeFile.file.fileReference.removeEventListener(Event.COMPLETE,						fileCompleteHandler);
 			_activeFile.file.fileReference.removeEventListener(IOErrorEvent.IO_ERROR, 				onFileFailed );
 			_activeFile.file.fileReference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,	onFileFailed);
 			_activeFile.file.fileReference.removeEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
@@ -126,7 +131,7 @@ package com.kaltura.upload.commands
 		 * upload error
 		 * */
 		private function onFileFailed(evet:Event):void {
-			
+			trace('failed uploading selected file');
 			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_FAILED;
 			removeFileListeners();
 			
