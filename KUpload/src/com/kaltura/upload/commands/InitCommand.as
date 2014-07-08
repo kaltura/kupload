@@ -94,7 +94,6 @@ package com.kaltura.upload.commands {
 			model.screenName = _params.screenName;
 
 			if (_innerParams != null) {
-				trace(_innerParams);
 				model.uploadHost = _innerParams.uploadHost;
 			}
 		}
