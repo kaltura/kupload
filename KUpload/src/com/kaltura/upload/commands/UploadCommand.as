@@ -16,6 +16,7 @@ package com.kaltura.upload.commands
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
@@ -82,9 +83,6 @@ package com.kaltura.upload.commands
 			_activeFile.token = tokenId;
 			_call = new UploadTokenUpload(tokenId, _activeFile.file.fileReference);
 			setupFileListeners();
-			//_activeFile.file.fileReference.addEventListener(ProgressEvent.PROGRESS, 					fileProgressHandler);
-			//uploadFile.addEventListener(KalturaEvent.COMPLETE, fileCompleteHandler);
-			//uploadFile.addEventListener(KalturaEvent.FAILED, onFileFailed);
 			
 			model.context.kc.post(_call);
 		}
@@ -93,7 +91,6 @@ package com.kaltura.upload.commands
 		{
 			_call.addEventListener(KalturaEvent.COMPLETE, 											fileCompleteHandler);
 			_call.addEventListener(KalturaEvent.FAILED, 											onFileFailed);
-//			_activeFile.file.fileReference.addEventListener(Event.COMPLETE, 						fileCompleteHandler);
 			_activeFile.file.fileReference.addEventListener(IOErrorEvent.IO_ERROR, 					onFileFailed );
 			_activeFile.file.fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, 		onFileFailed);
 			_activeFile.file.fileReference.addEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
@@ -105,7 +102,6 @@ package com.kaltura.upload.commands
 		{
 			_call.removeEventListener(KalturaEvent.COMPLETE, 										fileCompleteHandler);
 			_call.removeEventListener(KalturaEvent.FAILED, 											onFileFailed);
-//			_activeFile.file.fileReference.removeEventListener(Event.COMPLETE,						fileCompleteHandler);
 			_activeFile.file.fileReference.removeEventListener(IOErrorEvent.IO_ERROR, 				onFileFailed );
 			_activeFile.file.fileReference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,	onFileFailed);
 			_activeFile.file.fileReference.removeEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
@@ -130,8 +126,28 @@ package com.kaltura.upload.commands
 		/**
 		 * upload error
 		 * */
-		private function onFileFailed(evet:Event):void {
-			trace('failed uploading selected file');
+		private function onFileFailed(event:Event):void {
+			var str:String;
+			var rfileName:String = 'unknownFileName';
+			var fileName:String = _activeFile.file.fileReference.name;
+			switch (event.type) {
+				case KalturaEvent.FAILED:
+					str = 'KalturaEvent.FAILED, ' + (event as KalturaEvent).error.errorMsg;
+					rfileName = (event.target.fileData as FileReference).name;
+					break;
+				case IOErrorEvent.IO_ERROR:
+					str = 'OErrorEvent.IO_ERROR, ' + (event as IOErrorEvent).toString();
+					rfileName = (event.target as FileReference).name;
+					break;
+				case SecurityErrorEvent.SECURITY_ERROR:
+					str = 'SecurityErrorEvent.SECURITY_ERROR, ' + (event as SecurityErrorEvent).toString();
+					rfileName = (event.target as FileReference).name;
+					break;
+				default:
+					str = event.toString();
+					break;
+			}
+			trace('failed uploading selected file: ', rfileName, fileName, ' - ' , str);
 			_activeFile.uploadStatus = UploadStatusTypes.UPLOAD_FAILED;
 			removeFileListeners();
 			
