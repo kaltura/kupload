@@ -82,6 +82,7 @@ package com.kaltura.upload.commands
 			var tokenId:String = (event.data as KalturaUploadToken).id;
 			_activeFile.token = tokenId;
 			_call = new UploadTokenUpload(tokenId, _activeFile.file.fileReference);
+			_call.useTimeout = false;
 			setupFileListeners();
 			
 			model.context.kc.post(_call);
