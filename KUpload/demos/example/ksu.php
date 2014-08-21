@@ -6,10 +6,10 @@
 	require_once("kaltura_client_v3/KalturaClient.php"); 
 	
 	//define constants
-	define("KALTURA_PARTNER_ID", 356021);
-	define("KALTURA_PARTNER_WEB_SERVICE_SECRET", "65728cf144aef33909d11e3f274ed530");
+	define("KALTURA_PARTNER_ID", 321011);
+	define("KALTURA_PARTNER_WEB_SERVICE_SECRET", "5832f358f01e0b0da9c2cb64ff7f05b2");
 	
-	define("KSU_UICONFID", 5753011); 
+	define("KSU_UICONFID", 25740421); 
 	
 	//define session variables
 	$partnerUserID          = 'yuval';
@@ -20,20 +20,6 @@
 	$client           = new KalturaClient($config);
 	$ks               = $client->session->start(KALTURA_PARTNER_WEB_SERVICE_SECRET, $partnerUserID, KalturaSessionType::USER, KALTURA_PARTNER_ID);
 
-	
-	$flashVars = array();
-	//$flashVars["uid"]   = $partnerUserID; 
-	$flashVars["partnerId"] 		        = KALTURA_PARTNER_ID;
-	//$flashVars["subPId"] 		        = KALTURA_PARTNER_ID*100;
-	$flashVars["entryId"] 	 = -1;	     
-	$flashVars["ks"]   = $ks; 
-	//$flashVars["conversionProfileId"]   = 1615581; 
-	$flashVars["conversionQuality"]   = 1615581;
-	$flashVars["maxFileSize"]   = 200; 
-	$flashVars["maxTotalSize"]   = 5000; 
-	$flashVars["maxUploads"]   = 1;
-	$flashVars["uiConfId"]   = KSU_UICONFID; 
-	$flashVars["jsDelegate"]   = "delegate"; 
 ?>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
@@ -103,7 +89,6 @@
 	delegate.entriesAddedHandler = function(entries)
 	{
 		parent.frames["Results"].document.getElementById("txtResults").value = parent.frames["Results"].document.getElementById("txtResults").value + "Done!\n\n";
-		
 		var txtEntries = "";
 		for(var i=0;i<entries.length;i++)
 		{
@@ -332,7 +317,6 @@
 							entryId: -1,
 							ks: "<?PHP echo "$ks" ?>",
 							uiConfId: <?php echo KSU_UICONFID; ?>,
-							conversionProfile: 1615581,
 							jsDelegate: "delegate" };
 				
                 swfobject.embedSWF("http://www.kaltura.com/kupload/ui_conf_id/<?php echo KSU_UICONFID; ?>", "uploader", "180", "20", "9.0.0", "expressInstall.swf",flashVars, params,attributes);
