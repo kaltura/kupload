@@ -1,0 +1,161 @@
+<HTML>
+<HEAD>
+<STYLE>
+	.Header
+	{
+		font-size: 16pt;
+		color: white;
+	}
+
+	.Info
+	{
+		font-size: 12pt;
+		color: white;
+	}
+
+	.Link
+	{
+		font-size: 12pt;
+		color: lightblue;
+	}
+</STYLE>
+</HEAD>
+<BODY BGCOLOR="#303030">
+	<TABLE ID="Step0" STYLE="display: '';">
+		<TR>
+			<TD CLASS="Header"><B><U>Getting started</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				The following example will show you how to <B><U>easily</U></B> implement the <B><I>Kaltura Simple Uploader (KSU)</I></B>
+				on to your web page.
+				<BR /><BR />
+				The KSU has a flash object loaded in order to enable the browsing and selecting of content to upload.
+				<BR />
+				We can find it in the code where it says: <B><I>"--embed flash object--"</I></B>
+				<BR /><BR />
+				The first step in understanding the code behind this example is to know when the SWF flash object is loaded.
+				<BR />
+				Look for the following handler, in the KSU handlers section, where it says: <B><I>delegate.readyHandler</I></B>
+				<BR />
+				That's where we know if the flash object was loaded or not.
+				<BR />
+				You can see that once the object was loaded we throw an <B><I>alert</B></I> message.
+				<BR />
+				Click on it to jump to <B><I>Step 1 - Browsing for content</B></I>.
+			</TD>
+		</TR>
+	</TABLE>
+	<TABLE ID="Step1" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 1 - Browsing for content</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				Great! now click on the button saying: <B><I>"Step 1 - Browse for content"</B></I> and select the desired content to upload.
+			</TD>
+		<TR>
+	</TABLE>
+	<TABLE ID="Step2" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 2 - Uploading content</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				Great! We have now selected the content to upload. View the results section to view the total size of content we selected.
+				<BR /><BR />
+				How do we know that ?
+				<BR />
+				Easy! We can find the handler who takes care of it in the code, in the KSU handlers section where it says: <B><I>"delegate.selectHandler"</I></B>
+				<BR /><BR />
+				There are lots of other actions you might like to take before uploading, such as: Add tags, Add titles etc.
+				<BR />
+				To better understand how to do it, please go to <B><I>"KSU Website Integration Guide"</I></B> on: <A CLASS="Link" HREF="http://www.kaltura.org/kaltura-simple-uploader-ksu-website-integration-guide" TARGET="_BLANK">http://www.kaltura.org/kaltura-simple-uploader-ksu-website-integration-guide</A>
+				<BR /><BR />
+				What's next ? Let's upload the selected content!
+				<BR /><BR />
+				Click on the <B><I>"Step 2 - Upload selected content"</I></B> button.
+				<BR /></BR>
+			</TD>
+		</TR>
+	</TABLE>
+	<TABLE ID="Step2.1" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 2.1 - Uploading progress & Done uploading</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				Now we are uploading the content to the Kaltura network.
+				<BR />
+				We can see in the results pane the upload progress for each file selected for upload:
+				<BR /><BR />
+				How do we know what is the content upload progression ?
+				<BR />
+				Easy! We can find the handler who takes care of it in the code, in the KSU handlers section where it says: <B><I>"delegate.progressHandler"</I></B>
+				<BR /><BR />
+				When each file done uploading, we'll see in the results pane the name of the file done.
+				<BR />
+				Also, we'll see in the result pane amessage when all files are done uploading.
+				<BR /><BR />
+				And how do we know that ?
+				<BR />
+				Easy! We can find the handler who takes care of it in the code, in the KSU handlers section where it says: <B><I>"delegate.singleUploadCompleteHandler"</I></B> & <B><I>"delegate.allUploadsCompleteHandler"</I></B>
+			</TD>
+		</TR>
+	</TABLE>
+	<TABLE ID="Step3" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 3 - Add entries</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				Now, let's click on the <B><I>"Step 3 - Add entries"</I></B> button to add the uploaded files as entries in our KMC.
+				<BR /><BR />
+				Once clicked, the uploaded files are being set as entries in the KMC (<A CLASS="Link" HREF="http://www.kaltura.com/kmc" TARGET="_BLANK">http://www.kaltura.com/kmc</A>).
+				<BR />
+				The function that start this procedure is called: <B><I>"addEntries()"</I></B>.
+				<BR /><BR />
+				Once the entries are added, we'll see a message in the results pane.
+				<BR />
+				How do we know that entries are successfully added to the KMC ?
+				<BR />
+				Easy! We can find the handler who takes care of it in the code, in the KSU handlers section where it says: <B><I>"delegate.entriesAddedHandler"</I></B>
+				<BR /><BR />
+			</TD>
+		</TR>
+	</TABLE>
+	<TABLE ID="Step4" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 4 - Get files</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				Now, once the files are set as entries, let's get the list of files added.
+				<BR /><BR />
+				How do we do that ?
+				<BR />
+				Let's click on the: <B><I>"Step 4 - Get Files"</I></B> button.
+				<BR /><BR />
+				Once clicked, we'll see the list of files in the results pane.
+				<BR />
+				The function responsible for that action called: <B><I>"getFiles()"</I></B>
+				<BR /><BR />
+			</TD>
+		</TR>
+	</TABLE>
+	<TABLE ID="Step5" STYLE="display: none;">
+		<TR>
+			<TD CLASS="Header"><B><U>Step 5 - Actions</U></B></TD>
+		</TR>
+		<TR>
+			<TD CLASS="Info">
+				That's it!
+				<BR /><BR />
+				We have now completed the upload process with the KSU.
+				<BR /><BR />
+				Best of luck implementing the KSU in your site.
+			</TD>
+		</TR>
+	</TABLE>
+</BODY>
+</HTML>
