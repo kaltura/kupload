@@ -50,11 +50,10 @@ package com.kaltura.upload.commands {
 
 		private function saveBaseFlashVars():void {
 			var config:KalturaConfig = new KalturaConfig();
-			var protocol:String;
 			var hostFlashvar:String = _params.host;
 
 			if (_params.hasOwnProperty("protocol")) {
-				//backward competability, support when "http" is inside the "host" flashvar
+				//backward compatibility, support when "http" is inside the "host" flashvar
 				if (hostFlashvar.substr(0, 4) == "http") {
 					//takes the prefix of host, 'http://' or 'https://'
 					var protocolEndIndex:int = hostFlashvar.indexOf('//') + 2;
