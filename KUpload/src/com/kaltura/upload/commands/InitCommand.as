@@ -51,26 +51,39 @@ package com.kaltura.upload.commands {
 		private function saveBaseFlashVars():void {
 			var config:KalturaConfig = new KalturaConfig();
 			var hostFlashvar:String = _params.host;
-
+			var protocol:String;
+			var domain:String;
+			
 			if (_params.hasOwnProperty("protocol")) {
-				//backward compatibility, support when "http" is inside the "host" flashvar
-				if (hostFlashvar.substr(0, 4) == "http") {
-					//takes the prefix of host, 'http://' or 'https://'
-					var protocolEndIndex:int = hostFlashvar.indexOf('//') + 2;
-					config.protocol = hostFlashvar.substr(0, protocolEndIndex);
-					config.domain = hostFlashvar.substr(protocolEndIndex);
-				}
-				else {
-					config.protocol = _params.protocol;
-					config.domain = _params.host;
-				}
+				protocol = _params.protocol;
+			}
 
+			/* 
+			* protocol:
+			* 1 - protocol flashvar
+			* 2 - if host includes protocol, use it
+			* 3 - use http
+			* domain:
+			* if host contains protocol, strip it.
+			*/
+			if (hostFlashvar.substr(0, 4) == "http") {
+				var protocolEndIndex:int = hostFlashvar.indexOf('//') + 2;
+				if (!protocol) {
+					// takes the prefix of host, 'http://' or 'https://'
+					protocol = hostFlashvar.substr(0, protocolEndIndex);
+				}
+				if (!protocol) {
+					protocol = "http://";
+				}
+				
+				domain = hostFlashvar.substr(protocolEndIndex);
 			}
 			else {
-				//support local testing
-				config.protocol = "http://";
-				config.domain = "www.kaltura.com";
+				domain = hostFlashvar;
 			}
+
+			config.protocol = protocol;
+			config.domain = domain;
 
 
 			config.ks = _params.ks;
