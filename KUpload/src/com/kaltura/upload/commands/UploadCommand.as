@@ -13,6 +13,7 @@ package com.kaltura.upload.commands
 	import com.kaltura.vo.importees.UploadStatusTypes;
 	
 	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
@@ -90,19 +91,35 @@ package com.kaltura.upload.commands
 		
 		private function setupFileListeners():void
 		{
-			_call.addEventListener(KalturaEvent.COMPLETE, 											fileCompleteHandler);
-			_call.addEventListener(KalturaEvent.FAILED, 											onFileFailed);
+			if (model.uploadUrl) {
+				_activeFile.file.fileReference.addEventListener(Event.COMPLETE, 					fileCompleteHandler);
+			}
+			else {
+				_call.addEventListener(KalturaEvent.COMPLETE, 										fileCompleteHandler);
+				_call.addEventListener(KalturaEvent.FAILED, 										onFileFailed);
+			}
 			_activeFile.file.fileReference.addEventListener(IOErrorEvent.IO_ERROR, 					onFileFailed );
 			_activeFile.file.fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, 		onFileFailed);
 			_activeFile.file.fileReference.addEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
 			_activeFile.file.fileReference.addEventListener(Event.OPEN, 							fileOpenHandler);
+			_activeFile.file.fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, 			fileHttpStatusHandler);
 			_activeFile.file.addEventListener(Event.CANCEL,											polledFileReferenceCancelHandler);
+		}
+		
+		private function fileHttpStatusHandler(event:HTTPStatusEvent):void
+		{
+			trace(event.status);
 		}
 		
 		private function removeFileListeners():void
 		{
-			_call.removeEventListener(KalturaEvent.COMPLETE, 										fileCompleteHandler);
-			_call.removeEventListener(KalturaEvent.FAILED, 											onFileFailed);
+			if (model.uploadUrl) {
+				_activeFile.file.fileReference.removeEventListener(Event.COMPLETE, 					fileCompleteHandler);
+			}
+			else {
+				_call.removeEventListener(KalturaEvent.COMPLETE, 									fileCompleteHandler);
+				_call.removeEventListener(KalturaEvent.FAILED, 										onFileFailed);
+			}
 			_activeFile.file.fileReference.removeEventListener(IOErrorEvent.IO_ERROR, 				onFileFailed );
 			_activeFile.file.fileReference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,	onFileFailed);
 			_activeFile.file.fileReference.removeEventListener(ProgressEvent.PROGRESS, 				fileProgressHandler);
