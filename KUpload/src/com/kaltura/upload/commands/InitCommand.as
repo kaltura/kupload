@@ -72,16 +72,16 @@ package com.kaltura.upload.commands {
 					// takes the prefix of host, 'http://' or 'https://'
 					protocol = hostFlashvar.substr(0, protocolEndIndex);
 				}
-				if (!protocol) {
-					protocol = "http://";
-				}
-				
 				domain = hostFlashvar.substr(protocolEndIndex);
 			}
 			else {
 				domain = hostFlashvar;
 			}
 
+			if (!protocol) {
+				protocol = "http://";
+			}
+			
 			config.protocol = protocol;
 			config.domain = domain;
 
